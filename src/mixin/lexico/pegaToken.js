@@ -15,7 +15,7 @@ module.exports = (obj) => {
     trataAtribuicao(obj);
   } else if (['+', '-', '*'].includes(obj.file[obj.caracter])) {
     trataOperadorAritmetico(obj);
-  } else if (['<', '>', '='].includes(obj.file[obj.caracter])) {
+  } else if (['<', '>', '=', '!'].includes(obj.file[obj.caracter])) {
     trataOperadorRelacional(obj);
   } else if ([';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
     trataPontuacao(obj);

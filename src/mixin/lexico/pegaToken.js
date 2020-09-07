@@ -7,9 +7,9 @@ const trataOperadorRelacional = require('./trataOperadorRelacional');
 const trataPontuacao = require('./trataPontuacao');
 
 module.exports = (obj) => {
-  if (!obj.file[obj.caracter].isNaN()) {
+  if (!isNaN(obj.file[obj.caracter])) {
     trataDigito(obj);
-  } else if (obj.file[obj.caracter].isNaN()) {
+  } else if (isNaN(obj.file[obj.caracter])) {
     trataIdentificadorPalavraReservada(obj);
   } else if (obj.file[obj.caracter] === ':') {
     trataAtribuicao(obj);

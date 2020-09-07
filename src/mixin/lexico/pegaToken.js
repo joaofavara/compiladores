@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 const trataDigito = require('./trataDigito');
 const trataIdentificadorPalavraReservada = require('./trataIdentificadorPalavraReservada');
@@ -9,7 +10,7 @@ const trataPontuacao = require('./trataPontuacao');
 module.exports = (obj) => {
   if (!isNaN(obj.file[obj.caracter])) {
     trataDigito(obj);
-  } else if (isNaN(obj.file[obj.caracter])) {
+  } else if (isNaN(obj.file[obj.caracter]) && !['+', '-', '*', '<', '>', '=', '!', ';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
     trataIdentificadorPalavraReservada(obj);
   } else if (obj.file[obj.caracter] === ':') {
     trataAtribuicao(obj);

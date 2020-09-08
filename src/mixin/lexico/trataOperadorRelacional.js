@@ -8,8 +8,10 @@ module.exports = (obj) => {
 
   if (obj.file[obj.caracter] === '=' && (opRelacional === '>' || opRelacional === '<' || opRelacional === '!')) {
     opRelacional += obj.file[obj.caracter];
+    obj.caracter += 1;
   }
 
   token.lexema = opRelacional;
   token.simbolo = teste[opRelacional];
+  obj.lista.push(token);
 };

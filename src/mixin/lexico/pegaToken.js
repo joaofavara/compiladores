@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 const trataDigito = require('./trataDigito');
 const trataIdentificadorPalavraReservada = require('./trataIdentificadorPalavraReservada');
@@ -10,7 +9,7 @@ const trataPontuacao = require('./trataPontuacao');
 module.exports = (obj) => {
   if (/[0-9]/.test(obj.file[obj.caracter])) {
     trataDigito(obj);
-  } else if (/[a-z-A-Z]/.test(obj.file[obj.caracter])) {
+  } else if (/[a-zA-Z]/.test(obj.file[obj.caracter])) {
     trataIdentificadorPalavraReservada(obj);
   } else if (obj.file[obj.caracter] === ':') {
     trataAtribuicao(obj);
@@ -21,7 +20,6 @@ module.exports = (obj) => {
   } else if ([';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
     trataPontuacao(obj);
   } else {
-    console.log('ERRO! :',obj.file[obj.caracter]);
     return -1;
   }
 

@@ -12,4 +12,5 @@ module.exports = (obj) => {
 
   token.lexema = opRelacional;
   token.simbolo = teste[opRelacional];
+  obj.lista = token;
 };

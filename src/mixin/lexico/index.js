@@ -1,31 +1,54 @@
 const pegaToken = require('./pegaToken');
 
 async function codeAnalizer(file) {
-  const obj = {
-    file,
-    caracter: 0,
-    lista: [],
-  };
+  let lista = [];
+  let countLine = 0;
+  let result = 0;
 
-  do {
-    while ((obj.file[obj.caracter] === '{' || obj.file[obj.caracter] === ' ') && obj.file[obj.caracter]) {
-      if (obj.file[obj.caracter] === '{') {
-        while (obj.file[obj.caracter] !== '}' && obj.file[obj.caracter]) {
+  // eslint-disable-next-line prefer-arrow-callback
+  file.every((line) => {
+    countLine += 1;
+    const obj = {
+      file: line.split('\n')[0],
+      caracter: 0,
+      lista: {},
+      countLine,
+    };
+
+    do {
+      while ((obj.file[obj.caracter] === '{' || obj.file[obj.caracter] === ' ') && obj.file[obj.caracter]) {
+        if (obj.file[obj.caracter] === '{') {
+          while (obj.file[obj.caracter] !== '}' && obj.file[obj.caracter]) {
+            obj.caracter += 1;
+          }
           obj.caracter += 1;
         }
-        obj.caracter += 1;
+        while (obj.file[obj.caracter] === ' ' && obj.file[obj.caracter]) {
+          obj.caracter += 1;
+        }
       }
-      while (obj.file[obj.caracter] === ' ' && obj.file[obj.caracter]) {
-        obj.caracter += 1;
+      if (obj.file[obj.caracter]) {
+        result = pegaToken(obj);
+        if (result !== -1) {
+          lista = lista.concat(obj.lista);
+        } else {
+          lista = lista.concat({
+            type: 'error',
+            line,
+            column: obj.caracter + 1,
+            row: countLine,
+            caracter: obj.file[obj.caracter],
+          });
+          return false;
+        }
       }
-    }
-    if (obj.file[obj.caracter]) {
-      if(pegaToken(obj) == -1) {
-        break;
-      }   
-    }
-  } while (obj.file[obj.caracter]);
-  console.log('obj: ', obj);
+    } while (obj.file[obj.caracter]);
+
+    return true;
+  });
+  lista.forEach((token) => {
+    console.log(token);
+  });
 }
 
 module.exports = async (event) => {
@@ -34,8 +57,7 @@ module.exports = async (event) => {
   await reader.readAsText(file);
 
   reader.onloadend = async () => {
-    const commands = await reader.result.replace(/(\r\n|\n|\r)/gm, '');
-    const listaTokens = await codeAnalizer(commands);
-    console.log(listaTokens);
+    const codeLines = await reader.result.split('\n');
+    await codeAnalizer(codeLines);
   };
 };

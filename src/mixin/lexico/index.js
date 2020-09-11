@@ -20,11 +20,12 @@ async function codeAnalizer(file) {
       }
     }
     if (obj.file[obj.caracter]) {
-      pegaToken(obj);
+      if(pegaToken(obj) == -1) {
+        break;
+      }   
     }
   } while (obj.file[obj.caracter]);
-
-  return obj.lista;
+  console.log('obj: ', obj);
 }
 
 module.exports = async (event) => {

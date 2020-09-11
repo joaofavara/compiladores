@@ -8,9 +8,9 @@ const trataOperadorRelacional = require('./trataOperadorRelacional');
 const trataPontuacao = require('./trataPontuacao');
 
 module.exports = (obj) => {
-  if (!isNaN(obj.file[obj.caracter])) {
+  if (/[0-9]/.test(obj.file[obj.caracter])) {
     trataDigito(obj);
-  } else if (isNaN(obj.file[obj.caracter]) && !['+', '-', '*', '<', '>', '=', '!', ';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
+  } else if (/[a-z-A-Z]/.test(obj.file[obj.caracter])) {
     trataIdentificadorPalavraReservada(obj);
   } else if (obj.file[obj.caracter] === ':') {
     trataAtribuicao(obj);
@@ -21,6 +21,9 @@ module.exports = (obj) => {
   } else if ([';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
     trataPontuacao(obj);
   } else {
-    console.log('ERRO!');
+    console.log('ERRO! :',obj.file[obj.caracter]);
+    return -1;
   }
+
+  return 1;
 };

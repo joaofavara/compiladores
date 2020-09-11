@@ -1,9 +1,6 @@
-const fs = require('fs');
 const pegaToken = require('./pegaToken');
 
-async function teste() {
-  let file = fs.readFileSync('final.txt', 'utf8');
-  file = file.replace(/(\r\n|\n|\r)/gm, '');
+async function codeAnalizer(file) {
   const obj = {
     file,
     caracter: 0,
@@ -24,9 +21,20 @@ async function teste() {
     }
     if (obj.file[obj.caracter]) {
       pegaToken(obj);
-      console.log('obj: ', obj);
     }
   } while (obj.file[obj.caracter]);
+
+  return obj.lista;
 }
 
-teste();
+module.exports = async (event) => {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  await reader.readAsText(file);
+
+  reader.onloadend = async () => {
+    const commands = await reader.result.replace(/(\r\n|\n|\r)/gm, '');
+    const listaTokens = await codeAnalizer(commands);
+    console.log(listaTokens);
+  };
+};

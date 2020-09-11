@@ -13,5 +13,5 @@ module.exports = (obj) => {
 
   token.lexema = num;
   token.simbolo = 'snumero';
-  obj.lista.push(token);
+  obj.lista = token;
 };

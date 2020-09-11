@@ -15,5 +15,5 @@ module.exports = (obj) => {
 
   token.lexema = id;
   token.simbolo = teste[id] || 'sidentificador';
-  obj.lista.push(token);
+  obj.lista = token;
 };

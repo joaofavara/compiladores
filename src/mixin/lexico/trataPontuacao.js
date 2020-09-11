@@ -8,5 +8,5 @@ module.exports = (obj) => {
 
   token.lexema = pont;
   token.simbolo = teste[pont];
-  obj.lista.push(token);
+  obj.lista = token;
 };

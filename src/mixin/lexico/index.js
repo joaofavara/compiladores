@@ -51,13 +51,25 @@ async function codeAnalizer(file) {
   });
 }
 
-module.exports = async (event) => {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-  await reader.readAsText(file);
+const mixin = {
+  data() {
+    return {
+      codeLines: '',
+    };
+  },
+  methods: {
+    async fileReader(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      await reader.readAsText(file);
 
-  reader.onloadend = async () => {
-    const codeLines = await reader.result.split('\n');
-    await codeAnalizer(codeLines);
-  };
+      reader.onloadend = async () => {
+        this.codeLines = await reader.result;
+        const codeLines = this.codeLines.split('\n');
+        await codeAnalizer(codeLines);
+      };
+    },
+  },
 };
+
+module.exports = mixin;

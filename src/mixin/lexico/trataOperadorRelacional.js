@@ -6,10 +6,11 @@ module.exports = (obj) => {
   const token = { lexema: '', simbolo: '' };
   obj.caracter += 1;
 
-  if (obj.file[obj.caracter] === '=' && (opRelacional === '>' || opRelacional === '<' || opRelacional === '!')) {
+  if ((opRelacional === '>' || opRelacional === '<' || opRelacional === '!') && obj.file[obj.caracter] === '=') {
     opRelacional += obj.file[obj.caracter];
   }
 
   token.lexema = opRelacional;
   token.simbolo = teste[opRelacional];
+  obj.lista = token;
 };

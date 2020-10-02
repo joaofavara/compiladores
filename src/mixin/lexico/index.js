@@ -13,7 +13,6 @@ async function codeAnalizer(file) {
     const obj = {
       file: line.split('\n')[0].replace('\r', ''),
       caracter: 0,
-      lista: {},
       countLine,
     };
 
@@ -69,7 +68,7 @@ async function codeAnalizer(file) {
       if (obj.file[obj.caracter]) {
         result = pegaToken(obj);
         if (result !== -1) {
-          lista = lista.concat(obj.lista);
+          lista = lista.concat(result);
         } else {
           lista = lista.concat({
             type: 'error',

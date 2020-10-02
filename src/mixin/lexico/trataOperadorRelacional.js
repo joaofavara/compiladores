@@ -11,24 +11,25 @@ module.exports = (obj) => {
       opRelacional += obj.file[obj.caracter];
       token.lexema = opRelacional;
       token.simbolo = teste[opRelacional];
-      obj.lista = token;
+      return token;
     }
-  } else if (opRelacional === '>' || opRelacional === '<') {
+    return -1;
+  } if (opRelacional === '>' || opRelacional === '<') {
     if (obj.file[obj.caracter] === '=') {
       opRelacional += obj.file[obj.caracter];
       token.lexema = opRelacional;
       token.simbolo = teste[opRelacional];
-      obj.lista = token;
-    } else {
-      token.lexema = opRelacional;
-      token.simbolo = teste[opRelacional];
-      obj.lista = token;
+      return token;
     }
-  } else if (opRelacional === '=') {
     token.lexema = opRelacional;
     token.simbolo = teste[opRelacional];
-    obj.lista = token;
+    return token;
+  } if (opRelacional === '=') {
+    token.lexema = opRelacional;
+    token.simbolo = teste[opRelacional];
+    return token;
   }
 
   obj.caracter += 1;
+  return true;
 };

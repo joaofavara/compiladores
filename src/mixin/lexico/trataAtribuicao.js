@@ -13,5 +13,5 @@ module.exports = (obj) => {
     token.lexema = dpontos;
     token.simbolo = 'sdoispontos';
   }
-  obj.lista = token;
+  return token;
 };

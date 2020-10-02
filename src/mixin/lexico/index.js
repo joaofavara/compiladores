@@ -1,6 +1,6 @@
 const pegaToken = require('./pegaToken');
 
-async function codeAnalizer(file) {
+function codeAnalizer(file) {
   let lista = [];
   let countLine = 0;
   let result = 0;
@@ -95,18 +95,21 @@ async function codeAnalizer(file) {
 
     return true;
   });
-  lista.forEach((token) => {
-    console.log(token);
-  });
+
+  return lista;
 }
 
 module.exports = async (event) => {
   const file = event.target.files[0];
   const reader = new FileReader();
-  await reader.readAsText(file);
+  reader.readAsText(file);
 
-  reader.onloadend = async () => {
-    const codeLines = await reader.result.split('\n');
-    await codeAnalizer(codeLines);
-  };
+  const codeLines = await new Promise((resolve) => {
+    reader.onload = () => {
+      resolve(reader.result.split('\n'));
+    };
+  });
+
+  const result = codeAnalizer(codeLines);
+  return result;
 };

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import teste from '../mixin/lexico/index';
+import teste from '../mixin/sintatico/index';
 
 export default {
   name: 'Compilador',

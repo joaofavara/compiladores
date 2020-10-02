@@ -64,7 +64,6 @@ async function codeAnalizer(file) {
           }
         }
       }
-
       if (obj.file[obj.caracter]) {
         result = pegaToken(obj);
         if (result !== -1) {
@@ -79,6 +78,18 @@ async function codeAnalizer(file) {
           });
           return false;
         }
+      }
+
+      // eslint-disable-next-line max-len
+      if (!obj.file[obj.caracter] && (countLine === file.length) && (comentEncontradoChave || comentEncontradoBarra)) {
+        lista = lista.concat({
+          type: 'error - comentario infinito',
+          line,
+          column: obj.caracter + 1,
+          row: countLine,
+          caracter: '{',
+        });
+        return false;
       }
     } while (obj.file[obj.caracter]);
 

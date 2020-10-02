@@ -8,9 +8,10 @@ module.exports = (obj) => {
     dpontos += obj.file[obj.caracter];
     token.lexema = dpontos;
     token.simbolo = 'satribuicao';
+    obj.caracter += 1;
   } else {
     token.lexema = dpontos;
     token.simbolo = 'sdoispontos';
   }
-  obj.lista = token;
+  return token;
 };

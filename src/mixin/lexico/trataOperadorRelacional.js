@@ -6,11 +6,30 @@ module.exports = (obj) => {
   const token = { lexema: '', simbolo: '' };
   obj.caracter += 1;
 
-  if ((opRelacional === '>' || opRelacional === '<' || opRelacional === '!') && obj.file[obj.caracter] === '=') {
-    opRelacional += obj.file[obj.caracter];
+  if (opRelacional === '!') {
+    if (obj.file[obj.caracter] === '=') {
+      opRelacional += obj.file[obj.caracter];
+      token.lexema = opRelacional;
+      token.simbolo = teste[opRelacional];
+      return token;
+    }
+    return -1;
+  } if (opRelacional === '>' || opRelacional === '<') {
+    if (obj.file[obj.caracter] === '=') {
+      opRelacional += obj.file[obj.caracter];
+      token.lexema = opRelacional;
+      token.simbolo = teste[opRelacional];
+      return token;
+    }
+    token.lexema = opRelacional;
+    token.simbolo = teste[opRelacional];
+    return token;
+  } if (opRelacional === '=') {
+    token.lexema = opRelacional;
+    token.simbolo = teste[opRelacional];
+    return token;
   }
 
-  token.lexema = opRelacional;
-  token.simbolo = teste[opRelacional];
-  obj.lista = token;
+  obj.caracter += 1;
+  return true;
 };

@@ -11,7 +11,7 @@ async function codeAnalizer(file) {
   file.every((line) => {
     countLine += 1;
     const obj = {
-      file: line.split('\n')[0].replace('\r', ''),
+      file: line.split('\n')[0].replace(/(\t|\r)/gm, ''),
       caracter: 0,
       countLine,
     };

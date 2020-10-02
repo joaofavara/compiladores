@@ -1,6 +1,7 @@
-module.exports = (token) => {
+module.exports = (obj) => {
+  const token = obj.lista.pop();
   if (token.simbolo !== 'sinteiro' && token.simbolo !== 'sbooleano') {
     // ERRO
   }
-  // pegaToken();
+  obj.lista.pop();
 };

@@ -1,22 +1,26 @@
 const analisaLexico = require('../lexico/index');
+const analisaBloco = require('./analisaBloco');
 
 module.exports = async (event) => {
-  const lista = await analisaLexico(event);
-  console.log('LISTA: ', lista);
+  const obj = {
+    lista: await analisaLexico(event),
+  };
+  console.log('LISTA: ', obj.lista);
 
-  const token = { simbolo: '' };
-  // pegaToken();
+  let token = obj.lista.pop();
+  console.log('token: ', token);
+
   if (token.simbolo === 'sprograma') {
-    // pegaToken();
+    token = obj.lista.pop();
     if (token.simbolo === 'sidentificador') {
-      // pegaToken();
+      token = obj.lista.pop();
       if (token.simbolo === 'spontovirgula') {
-        // analisaBloco();
+        analisaBloco(obj);
         if (token.simbolo === 'sponto') {
-          if ('acabou arquivo' || 'é comentario');
-          else {
-            // ERRO
-          }
+          // if ('acabou arquivo' || 'é comentario');
+          // else {
+          //   // ERRO
+          // }
         } else {
           // ERRO
         }

@@ -1,9 +1,12 @@
-module.exports = (token) => {
-  // pegaToken();
-  // analisaExpressao();
+const analisaExpressao = require('./analisaExpressao');
+const analisaComandoSimples = require('./analisaComandoSimples');
+
+module.exports = (obj) => {
+  const token = obj.lista.pop();
+  analisaExpressao();
   if (token.simbolo === 'sfaca') {
-    // pegaToken();
-    // analisaComandoSimples);
+    obj.lista.pop();
+    analisaComandoSimples(obj);
   } else {
     // ERRO
   }

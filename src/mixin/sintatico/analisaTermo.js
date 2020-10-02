@@ -1,7 +1,10 @@
-module.exports = (token) => {
-  // analisaFator();
+const analisaFator = require('./analisaFator');
+
+module.exports = (obj) => {
+  analisaFator();
+  let token = obj.lista.pop();
   while (token.simbolo === 'smult' || token.simbolo === 'sdiv' || token.simbolo === 'se') {
-    // pegaToken();
-    // analisaFator();
+    token = obj.lista.pop();
+    analisaFator(obj);
   }
 };

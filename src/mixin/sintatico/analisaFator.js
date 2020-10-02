@@ -1,22 +1,28 @@
-module.exports = (token) => {
+const analisaExpressao = require('./analisaExpressao');
+
+function analiaFator(obj) {
+  let token = obj.lista.pop();
   if (token.simbolo === 'sidentificador') {
     // analisaChamadaFuncao();
   } else if (token.simbolo === 'snumero') {
-    // pegaToken();
+    token = obj.lista.pop();
   } else if (token.simbolo === 'snao') {
-    // pegaToken();
-    // analisaFator();
+    token = obj.lista.pop();
+    // eslint-disable-next-line no-undef
+    analisaFator(obj);
   } else if (token.simbolo === 'sabre_parenteses') {
-    // pegaToken();
-    // analisaExpressao();
+    token = obj.lista.pop();
+    analisaExpressao(obj);
     if (token.simbolo === 'sfecha_parenteses') {
-      // pegaToken();
+      token = obj.lista.pop();
     } else {
       // ERRO
     }
   } else if (token.lexema === 'verdadeiro' || token.lexema === 'falso') {
-    // pegaToken();
+    token = obj.lista.pop();
   } else {
     // ERRO
   }
-};
+}
+
+module.exports = analiaFator;

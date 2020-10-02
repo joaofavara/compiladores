@@ -1,12 +1,15 @@
-module.exports = (token) => {
-  // pegaToken();
-  // analisaExpressao();
+const analisaExpressao = require('./analisaExpressao');
+const analisaComandoSimples = require('./analisaComandoSimples');
+
+module.exports = (obj) => {
+  let token = obj.lista.pop();
+  analisaExpressao();
   if (token.simbolo === 'sentao') {
-    // pegaToken();
-    // analisaComandoSimples();
+    token = obj.lista.pop();
+    analisaComandoSimples(obj);
     if (token.simbolo === 'ssenao') {
-      // pegaToken();
-      // analisaComandoSimples();
+      obj.lista.pop();
+      analisaComandoSimples(obj);
     }
   } else {
     // ERRO

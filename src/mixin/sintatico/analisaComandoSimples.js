@@ -1,15 +1,23 @@
-module.exports = (token) => {
+const analisaAtribChprocedimento = require('./analisaAtribChprocedimento');
+const analisaSe = require('./analisaSe');
+const analisaEnquanto = require('./analisaEnquanto');
+const analisaLeia = require('./analisaLeia');
+const analisaEscreva = require('./analisaEscreva');
+const analisaComandos = require('./analisaComandos');
+
+module.exports = (obj) => {
+  const token = obj.lista.pop();
   if (token.simbolo === 'sidentificador') {
-    // analisaAtribChprocedimento();
+    analisaAtribChprocedimento(obj);
   } else if (token.simbolo === 'sse') {
-    // analisaSe();
+    analisaSe(obj);
   } else if (token.simbolo === 'senquanto') {
-    // analisaEnquanto();
+    analisaEnquanto(obj);
   } else if (token.simbolo === 'sleia') {
-    // analisaLeia();
+    analisaLeia(obj);
   } else if (token.simbolo === 'sescreva') {
-    // analisaEscreva();
+    analisaEscreva(obj);
   } else {
-    // analisaComandos();
+    analisaComandos(obj);
   }
 };

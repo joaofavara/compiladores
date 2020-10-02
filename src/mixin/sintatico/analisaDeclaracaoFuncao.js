@@ -1,13 +1,15 @@
-module.exports = (token) => {
-  // pegaToken();
+const analisaBloco = require('./analisaBloco');
+
+module.exports = (obj) => {
+  let token = obj.lista.pop();
   if (token.simbolo === 'sidentificador') {
-    // pegaToken();
+    token = obj.lista.pop();
     if (token.simbolo === 'sdoispontos') {
-      // pegaToken();
+      token = obj.lista.pop();
       if (token.simbolo === 'sinteiro' || token.simbolo === 'sbooleano') {
-        // pegaToken();
+        token = obj.lista.pop();
         if (token.simbolo === 'sponto_virgula') {
-          // analisaBloco();
+          analisaBloco(obj);
         }
       } else {
         // ERRO

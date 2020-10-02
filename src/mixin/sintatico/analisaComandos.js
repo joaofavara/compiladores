@@ -1,18 +1,21 @@
-module.exports = (token) => {
+const analisaComandoSimples = require('./analisaComandoSimples');
+
+module.exports = (obj) => {
+  let token = obj.lista.pop();
   if (token.simbolo === 'sinicio') {
-    // pegaToken();
-    // analisaComandoSimples();
+    token = obj.lista.pop();
+    analisaComandoSimples(obj);
     while (token.simbolo !== 'sfim') {
       if (token.simbolo === 'spontovirgula') {
-        // pegaToken();
+        token = obj.lista.pop();
         if (token.simbolo !== 'sfim') {
-          // analisaComandoSimples();
+          analisaComandoSimples(obj);
         }
       } else {
         // ERRO
       }
     }
-    // pegaToken();
+    obj.lista.pop();
   } else {
     // ERRO
   }

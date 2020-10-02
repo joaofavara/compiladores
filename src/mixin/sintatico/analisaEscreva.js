@@ -1,11 +1,11 @@
-module.exports = (token) => {
-  // pegaToken();
+module.exports = (obj) => {
+  let token = obj.lista.pop();
   if (token.simbolo === 'sabre_parenteses') {
-    // pegaToken();
+    token = obj.lista.pop();
     if (token.simbolo === 'sidentificador') {
-      // pegaToken();
+      token = obj.lista.pop();
       if (token.simbolo === 'sfecha_parenteses') {
-        // pegaToken();
+        token = obj.lista.pop();
       } else {
         // ERRO
       }

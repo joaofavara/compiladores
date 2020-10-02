@@ -1,8 +1,11 @@
-module.exports = (token) => {
-  // pegaToken();
+const analisaAtribuicao = require('./analisaAtribuicao');
+
+module.exports = (obj) => {
+  const token = obj.lista.pop();
   if (token.simbolo === 'satribuicao') {
-    // analisaAtribuicao();
-  } else {
-    // chamadaProcedimento();
+    analisaAtribuicao(obj);
   }
+  // else {
+  //   chamadaProcedimento();
+  // }
 };

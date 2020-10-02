@@ -1,10 +1,13 @@
-module.exports = (token) => {
+const analisaTipo = require('./analisaExpressao');
+
+module.exports = (obj) => {
+  let token = obj.lista.pop();
   do {
     if (token.simbolo === 'sidentificador') {
-      // pegaToken();
+      token = obj.lista.pop();
       if (token.simbolo === 'svirgula' || token.simbolo === 'sdoispontos') {
         if (token.simbolo === 'svirgula') {
-          // pegaToken();
+          token = obj.lista.pop();
           if (token.simbolo === 'sdoispontos') {
             // ERRO
           }
@@ -16,6 +19,6 @@ module.exports = (token) => {
       // ERRO
     }
   } while (token.simbolo === 'sdoispontos');
-  // pegaToken();
-  // analisaTipo();
+  obj.lista.pop();
+  analisaTipo(obj);
 };

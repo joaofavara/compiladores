@@ -1,9 +1,12 @@
-module.exports = (token) => {
+const analisaVariaveis = require('./analisaVariaveis');
+
+module.exports = (obj) => {
+  const token = obj.lista.pop();
   if (token.simbolo === 'svar') {
     while (token.simbolo === 'sidentificador') {
-      // analisaVariaveis();
+      analisaVariaveis(obj);
       if (token.simbolo === 'spontovirg') {
-        // pegaToken();
+        obj.lista.pop();
       } else {
         // ERRO
       }

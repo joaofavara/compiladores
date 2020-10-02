@@ -96,7 +96,7 @@ function codeAnalizer(file) {
     return true;
   });
 
-  return lista;
+  return lista.reverse();
 }
 
 module.exports = async (event) => {

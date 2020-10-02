@@ -8,20 +8,17 @@ const trataPontuacao = require('./trataPontuacao');
 
 module.exports = (obj) => {
   if (/[0-9]/.test(obj.file[obj.caracter])) {
-    trataDigito(obj);
-  } else if (/[a-zA-Z]/.test(obj.file[obj.caracter])) {
-    trataIdentificadorPalavraReservada(obj);
-  } else if (obj.file[obj.caracter] === ':') {
-    trataAtribuicao(obj);
-  } else if (['+', '-', '*'].includes(obj.file[obj.caracter])) {
-    trataOperadorAritmetico(obj);
-  } else if (['<', '>', '=', '!'].includes(obj.file[obj.caracter])) {
-    trataOperadorRelacional(obj);
-  } else if ([';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
-    trataPontuacao(obj);
-  } else {
-    return -1;
+    return trataDigito(obj);
+  } if (/[a-zA-Z]/.test(obj.file[obj.caracter])) {
+    return trataIdentificadorPalavraReservada(obj);
+  } if (obj.file[obj.caracter] === ':') {
+    return trataAtribuicao(obj);
+  } if (['+', '-', '*'].includes(obj.file[obj.caracter])) {
+    return trataOperadorAritmetico(obj);
+  } if (['<', '>', '=', '!'].includes(obj.file[obj.caracter])) {
+    return trataOperadorRelacional(obj);
+  } if ([';', '(', ')', '.', ','].includes(obj.file[obj.caracter])) {
+    return trataPontuacao(obj);
   }
-
-  return 1;
+  return -1;
 };

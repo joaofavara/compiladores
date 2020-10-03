@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "back": "nodemon ./server/app.js -- inspect",
+    "dev": "npm run electron:serve && npm run back",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -13,7 +15,12 @@
   },
   "main": "background.js",
   "dependencies": {
+    "axios": "^0.20.0",
+    "body-parser": "^1.19.0",
     "core-js": "^3.6.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "node": "^14.13.0",
     "vue": "^2.6.11",
     "vuex": "^3.4.0"
   },

@@ -6,13 +6,23 @@
 </template>
 
 <script>
-import teste from '../mixin/sintatico/index';
+import axios from 'axios';
 
 export default {
   name: 'Compilador',
   methods: {
     test(e) {
-      teste(e);
+      axios({
+        method: 'post',
+        url: 'http://localhost:3000/api/code',
+        data: {
+          file: e.target.files[0].path,
+        },
+      }).then((values) => {
+        console.log(values);
+      }).catch((err) => {
+        console.err(err);
+      });
     },
   },
 };

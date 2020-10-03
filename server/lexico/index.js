@@ -1,3 +1,4 @@
+const fs = require('fs');
 const pegaToken = require('./pegaToken');
 
 function codeAnalizer(file) {
@@ -99,17 +100,8 @@ function codeAnalizer(file) {
   return lista.reverse();
 }
 
-module.exports = async (event) => {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-  reader.readAsText(file);
-
-  const codeLines = await new Promise((resolve) => {
-    reader.onload = () => {
-      resolve(reader.result.split('\n'));
-    };
-  });
-
-  const result = codeAnalizer(codeLines);
+module.exports = async (path) => {
+  const code = fs.readFileSync(path, 'utf8');
+  const result = codeAnalizer(code.split('\n'));
   return result;
 };

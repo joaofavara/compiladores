@@ -1,9 +1,9 @@
 const analisaLexico = require('../lexico/index');
 const analisaBloco = require('./analisaBloco');
 
-module.exports = async (event) => {
+module.exports = async (file) => {
   const obj = {
-    lista: await analisaLexico(event),
+    lista: await analisaLexico(file),
   };
   console.log('LISTA: ', obj.lista);
 

@@ -5,7 +5,6 @@ module.exports = async (file) => {
   const obj = {
     lista: await analisaLexico(file),
   };
-  console.log('LISTA: ', obj.lista);
 
   let token = obj.lista.pop();
   console.log('token: ', token);
@@ -22,15 +21,15 @@ module.exports = async (file) => {
           //   // ERRO
           // }
         } else {
-          // ERRO
+          throw new Error(`Error: ${token.lexema} - ${token.simbolo}`);
         }
       } else {
-        // ERRO
+        throw new Error(`Error: ${token.lexema} - ${token.simbolo}`);
       }
     } else {
-      // ERRO
+      throw new Error(`Error: ${token.lexema} - ${token.simbolo}`);
     }
   } else {
-    // ERRO
+    throw new Error(`Error: ${token.lexema} - ${token.simbolo}`);
   }
 };

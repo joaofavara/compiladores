@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sintatico = require('./sintatico');
+const handlerError = require('./error/handler-error');
 
 const app = express();
 
@@ -14,14 +15,18 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.post('/api/code', (req, res) => {
+app.post('/api/code', async (req, res, next) => {
   const { file } = req.body;
-  sintatico(file);
-  res.status(200).json({
-    message: 'TESTE',
-    error: false,
-  });
-});
+  try {
+    await sintatico(file);
+    res.status(200).json({
+      message: 'TESTE',
+      error: false,
+    });
+  } catch (err) {
+    next(err);
+  }
+}, handlerError);
 
 app.listen(3000, () => {
   console.log('App is running at 3000');

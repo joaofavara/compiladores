@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "back": "nodemon ./server/app.js -- inspect",
+    "back": "nodemon --inspect ./server/app.js ",
     "dev": "npm run electron:serve && npm run back",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

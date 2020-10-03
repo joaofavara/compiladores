@@ -21,7 +21,7 @@ export default {
       }).then((values) => {
         console.log(values);
       }).catch((err) => {
-        console.err(err);
+        console.log(err);
       });
     },
   },

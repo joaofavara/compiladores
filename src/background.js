@@ -1,5 +1,8 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { app, protocol, BrowserWindow } from 'electron';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -20,6 +23,7 @@ function createWindow() {
     height: 600,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
+      // eslint-disable-next-line max-len
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },

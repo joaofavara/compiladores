@@ -2,7 +2,9 @@
 /* eslint-disable no-param-reassign */
 module.exports = (obj) => {
   let num = obj.file[obj.caracter];
-  const token = { lexema: '', simbolo: '' };
+  const token = {
+    lexema: '', simbolo: '', row: '', column: obj.caracter,
+  };
 
   obj.caracter += 1;
 

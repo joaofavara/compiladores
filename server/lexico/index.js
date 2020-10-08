@@ -68,6 +68,7 @@ function codeAnalizer(file) {
       if (obj.file[obj.caracter]) {
         result = pegaToken(obj);
         if (result !== -1) {
+          result.row = countLine;
           lista = lista.concat(result);
         } else {
           lista = lista.concat({
@@ -96,7 +97,6 @@ function codeAnalizer(file) {
 
     return true;
   });
-
   return lista.reverse();
 }
 

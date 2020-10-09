@@ -12,7 +12,7 @@ module.exports = class AnalisadorSintatico {
         this.lertoken();
         if (this.tokenAtual.simbolo === 'spontovirgula') {
           this.analisarBloco();
-          if (this.tokenAtual.simbolo === 'sponto') {
+          if (this.tokenAtual && this.tokenAtual.simbolo === 'sponto') {
             this.lertoken();
             if (this.tratadorLexico.tokenAtual === undefined) {
               console.log('Fim da execucao\n');
@@ -20,6 +20,9 @@ module.exports = class AnalisadorSintatico {
               throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
             }
           } else {
+            if (!this.tokenAtual) {
+              throw new Error(`Token "." esperado:${this.tratadorLexico.linha}:${this.tratadorLexico.coluna} `);
+            }
             throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
           }
         } else {

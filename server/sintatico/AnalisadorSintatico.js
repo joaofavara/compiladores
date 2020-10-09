@@ -1,80 +1,109 @@
 module.exports = class AnalisadorSintatico {
-  constructor(lista) {
-    this.listaTokens = lista;
-    this.tokenAtual = '';
+  constructor(tratadorLexico) {
+    this.tratadorLexico = tratadorLexico;
+    this.tokenAtual = undefined;
+  }
+
+  analisarPrograma() {
+    this.lertoken();
+    if (this.tokenAtual.simbolo === 'sprograma') {
+      this.lertoken();
+      if (this.tokenAtual.simbolo === 'sidentificador') {
+        this.lertoken();
+        if (this.tokenAtual.simbolo === 'spontovirgula') {
+          this.analisarBloco();
+          if (this.tokenAtual.simbolo === 'sponto') {
+            this.lertoken();
+            if (this.tratadorLexico.tokenAtual === undefined) {
+              console.log('Fim da execucao\n');
+            } else {
+              throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
+            }
+          } else {
+            throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
+          }
+        } else {
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
+        }
+      } else {
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
+      }
+    } else {
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
+    }
   }
 
   lertoken() {
-    this.tokenAtual = this.listaTokens.pop();
+    this.tokenAtual = this.tratadorLexico.adquirirToken();
   }
 
-  analisaAtribChprocedimento() {
+  analisarAtribChprocedimento() {
     this.lertoken();
     if (this.tokenAtual.simbolo === 'satribuicao') {
-      this.analisaAtribuicao();
+      this.analisarAtribuicao();
     }
     // else {
     //   chamadaProcedimento();
     // }
   }
 
-  analisaAtribuicao() {
+  analisarAtribuicao() {
     this.lertoken();
-    this.analisaExpressaoSimples();
+    this.analisarExpressaoSimples();
   }
 
-  analisaChamadaDeFuncao() {
-    this.lertoken();
-  }
-
-  analisaChamadaDeProcedimento() {
+  analisarChamadaDeFuncao() {
     this.lertoken();
   }
 
-  analisaBloco() {
+  analisarChamadaDeProcedimento() {
     this.lertoken();
-    this.analisaEtVariaveis();
-    this.analisaSubrotinas();
-    this.analisaComandos();
   }
 
-  analisaComandos() {
+  analisarBloco() {
+    this.lertoken();
+    this.analisarEtVariaveis();
+    this.analisarSubrotinas();
+    this.analisarComandos();
+  }
+
+  analisarComandos() {
     if (this.tokenAtual.simbolo === 'sinicio') {
       this.lertoken();
-      this.analisaComandoSimples();
+      this.analisarComandoSimples();
       while (this.tokenAtual.simbolo !== 'sfim') {
         if (this.tokenAtual.simbolo === 'spontovirgula') {
           this.lertoken();
           if (this.tokenAtual.simbolo !== 'sfim') {
-            this.analisaComandoSimples();
+            this.analisarComandoSimples();
           }
         } else {
-          throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
         }
       }
       this.lertoken();
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaComandoSimples() {
+  analisarComandoSimples() {
     if (this.tokenAtual.simbolo === 'sidentificador') {
-      this.analisaAtribChprocedimento();
+      this.analisarAtribChprocedimento();
     } else if (this.tokenAtual.simbolo === 'sse') {
-      this.analisaSe();
+      this.analisarSe();
     } else if (this.tokenAtual.simbolo === 'senquanto') {
-      this.analisaEnquanto();
+      this.analisarEnquanto();
     } else if (this.tokenAtual.simbolo === 'sleia') {
-      this.analisaLeia();
+      this.analisarLeia();
     } else if (this.tokenAtual.simbolo === 'sescreva') {
-      this.analisaEscreva();
+      this.analisarEscreva();
     } else {
-      this.analisaComandos();
+      this.analisarComandos();
     }
   }
 
-  analisaDeclaracaoFuncao() {
+  analisarDeclaracaoFuncao() {
     this.lertoken();
     if (this.tokenAtual.simbolo === 'sidentificador') {
       this.lertoken();
@@ -83,45 +112,45 @@ module.exports = class AnalisadorSintatico {
         if (this.tokenAtual.simbolo === 'sinteiro' || this.tokenAtual.simbolo === 'sbooleano') {
           this.lertoken();
           if (this.tokenAtual.simbolo === 'spontovirgula') {
-            this.analisaBloco();
+            this.analisarBloco();
           }
         } else {
-          throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
         }
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaDeclaracaoProcedimento() {
+  analisarDeclaracaoProcedimento() {
     this.lertoken();
     if (this.tokenAtual.simbolo === 'sidentificador') {
       this.lertoken();
       if (this.tokenAtual.simbolo === 'spontovirgula') {
-        this.analisaBloco();
+        this.analisarBloco();
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaEnquanto() {
+  analisarEnquanto() {
     this.lertoken();
-    this.analisaExpressao();
+    this.analisarExpressao();
     if (this.tokenAtual.simbolo === 'sfaca') {
       this.lertoken();
-      this.analisaComandoSimples();
+      this.analisarComandoSimples();
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaEscreva() {
+  analisarEscreva() {
     this.lertoken();
     if (this.tokenAtual.simbolo === 'sabreparenteses') {
       this.lertoken();
@@ -130,79 +159,78 @@ module.exports = class AnalisadorSintatico {
         if (this.tokenAtual.simbolo === 'sfechaparenteses') {
           this.lertoken();
         } else {
-          throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
         }
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaEtVariaveis() {
+  analisarEtVariaveis() {
     if (this.tokenAtual.simbolo === 'svar') {
       this.lertoken();
       if (this.tokenAtual.simbolo === 'sidentificador') {
         while (this.tokenAtual.simbolo === 'sidentificador') {
-          this.analisaVariaveis();
+          this.analisarVariaveis();
           if (this.tokenAtual.simbolo === 'spontovirgula') {
             this.lertoken();
           } else {
-            throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+            throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
           }
         }
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     }
   }
 
-  analisaExpressao() {
-    this.analisaExpressaoSimples();
+  analisarExpressao() {
+    this.analisarExpressaoSimples();
     if (['smaior', 'smaiorig', 'sig', 'smenor', 'smenorig', 'sdif'].includes(this.tokenAtual.simbolo)) {
       this.lertoken();
-      this.analisaExpressaoSimples();
+      this.analisarExpressaoSimples();
     }
   }
 
-  analisaExpressaoSimples() {
+  analisarExpressaoSimples() {
     if (this.tokenAtual.simbolo === 'smais' || this.tokenAtual.simbolo === 'smenos') {
       this.lertoken();
     }
-    this.analisaTermo();
+    this.analisarTermo();
     while (this.tokenAtual.simbolo === 'smais' || this.tokenAtual.simbolo === 'smenos' || this.tokenAtual.simbolo === 'sou') {
       this.lertoken();
-      this.analisaTermo();
+      this.analisarTermo();
     }
   }
 
-  analisaFator() {
+  analisarFator() {
     if (this.tokenAtual.simbolo === 'sidentificador') {
-      // analisaChamadaFuncao();
       this.lertoken();
+      // analisarChamadaFuncao();
     } else if (this.tokenAtual.simbolo === 'snumero') {
       this.lertoken();
     } else if (this.tokenAtual.simbolo === 'snao') {
       this.lertoken();
-      // eslint-disable-next-line no-undef
-      analisaFator();
+      this.analisarFator();
     } else if (this.tokenAtual.simbolo === 'sabreparenteses') {
       this.lertoken();
-      this.analisaExpressao();
+      this.analisarExpressao();
       if (this.tokenAtual.simbolo === 'sfechaparenteses') {
         this.lertoken();
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } else if (this.tokenAtual.lexema === 'verdadeiro' || this.tokenAtual.lexema === 'falso') {
       this.lertoken();
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaLeia() {
+  analisarLeia() {
     this.lertoken();
     if (this.tokenAtual.simbolo === 'sabreparenteses') {
       this.lertoken();
@@ -211,32 +239,32 @@ module.exports = class AnalisadorSintatico {
         if (this.tokenAtual.simbolo === 'sfechaparenteses') {
           this.lertoken();
         } else {
-          throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
         }
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaSe() {
+  analisarSe() {
     this.lertoken();
-    this.analisaExpressao();
+    this.analisarExpressao();
     if (this.tokenAtual.simbolo === 'sentao') {
       this.lertoken();
-      this.analisaComandoSimples();
+      this.analisarComandoSimples();
       if (this.tokenAtual.simbolo === 'ssenao') {
         this.lertoken();
-        this.analisaComandoSimples();
+        this.analisarComandoSimples();
       }
     } else {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
   }
 
-  analisaVariaveis() {
+  analisarVariaveis() {
     do {
       if (this.tokenAtual.simbolo === 'sidentificador') {
         this.lertoken();
@@ -244,59 +272,59 @@ module.exports = class AnalisadorSintatico {
           if (this.tokenAtual.simbolo === 'svirgula') {
             this.lertoken();
             if (this.tokenAtual.simbolo === 'sdoispontos') {
-              throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+              throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
             }
           }
         } else {
-          throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+          throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
         }
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     } while (this.tokenAtual.simbolo !== 'sdoispontos');
     this.lertoken();
-    this.analisaTipo();
+    this.analisarTipo();
   }
 
-  analisaSubrotinas() {
+  analisarSubrotinas() {
     // flag = 0;
     if (this.tokenAtual.simbolo === 'sprocedimento' || this.tokenAtual.simbolo === 'sfuncao');
 
     while (this.tokenAtual.simbolo === 'sprocedimento' || this.tokenAtual.simbolo === 'sfuncao') {
       if (this.tokenAtual.simbolo === 'sprocedimento') {
-        this.analisaDeclaracaoProcedimento();
+        this.analisarDeclaracaoProcedimento();
       } else {
-        this.analisaDeclaracaoFuncao();
+        this.analisarDeclaracaoFuncao();
       }
       if (this.tokenAtual.simbolo === 'spontovirgula') {
         this.lertoken();
       } else {
-        throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+        throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
       }
     }
   // flag = 1;
   }
 
-  analisatermo() {
-    this.analisaFator();
+  analisartermo() {
+    this.analisarFator();
     while (this.tokenAtual.simbolo === 'smult' || this.tokenAtual.simbolo === 'sdiv' || this.tokenAtual.simbolo === 'se') {
       this.lertoken();
-      this.analisaFator();
+      this.analisarFator();
     }
   }
 
-  analisaTipo() {
+  analisarTipo() {
     if (this.tokenAtual.simbolo !== 'sinteiro' && this.tokenAtual.simbolo !== 'sbooleano') {
-      throw new Error(`Error: ${this.tokenAtual.lexema} - ${this.tokenAtual.simbolo}`);
+      throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);
     }
     this.lertoken();
   }
 
-  analisaTermo() {
-    this.analisaFator();
+  analisarTermo() {
+    this.analisarFator();
     while (this.tokenAtual.simbolo === 'smult' || this.tokenAtual.simbolo === 'sdiv' || this.tokenAtual.simbolo === 'se') {
       this.lertoken();
-      this.analisaFator();
+      this.analisarFator();
     }
   }
 };

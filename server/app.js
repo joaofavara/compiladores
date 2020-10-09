@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const sintatico = require('./sintatico');
+const index = require('.');
 const handlerError = require('./error/handler-error');
 
 const app = express();
@@ -18,7 +18,7 @@ app.use(cors(corsOptions));
 app.post('/api/code', async (req, res, next) => {
   const { file } = req.body;
   try {
-    await sintatico(file);
+    await index(file);
     res.status(200).json({
       message: 'TESTE',
       error: false,

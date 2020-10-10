@@ -1,6 +1,7 @@
 <template>
   <div class="compilador">
-    <input type="file" @change="test" class='file'>
+    <input type="file" @change="showCode" class='file'>
+    <button @click="test"> RUN </button>
     <textarea v-model="textAreaValue" />
     <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
       {{ error || success }}
@@ -29,28 +30,28 @@ export default {
     },
   },
   methods: {
-    // async showCode(event) {
-    //   const file = event.target.files[0];
-    //   const reader = new FileReader();
-    //   await reader.readAsText(file);
-
-    //   reader.onloadend = async () => {
-    //     this.textAreaValue = await reader.result;
-    //   };
-    // },
-    async test(e) {
-      const file = e.target.files[0];
+    async showCode(event) {
+      const file = event.target.files[0];
       const reader = new FileReader();
       await reader.readAsText(file);
 
       reader.onloadend = async () => {
         this.textAreaValue = await reader.result;
       };
+    },
+    async test() {
+      // const file = e.target.files[0];
+      // const reader = new FileReader();
+      // await reader.readAsText(file);
+
+      // reader.onloadend = async () => {
+      //   this.textAreaValue = await reader.result;
+      // };
       axios({
         method: 'post',
         url: 'http://localhost:3000/api/code',
         data: {
-          file: e.target.files[0].path,
+          code: this.textAreaValue,
         },
       }).then((values) => {
         console.log('Values: ', values);
@@ -70,6 +71,11 @@ export default {
   .compilador {
     display: flex;
     flex-direction: column;
+
+    button {
+      width: fit-content;
+      height: 35px;
+    }
 
     textarea{
       margin: 10px;

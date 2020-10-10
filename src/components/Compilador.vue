@@ -1,7 +1,10 @@
 <template>
   <div class="compilador">
-    <!-- <button @click="test">TESTE</button> -->
     <input type="file" @change="test" class='file'>
+    <textarea v-model="textAreaValue" />
+    <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
+      {{ error || success }}
+    </div>
   </div>
 </template>
 
@@ -10,8 +13,39 @@ import axios from 'axios';
 
 export default {
   name: 'Compilador',
+  data() {
+    return {
+      textAreaValue: '',
+      error: '',
+      success: '',
+    };
+  },
+  computed: {
+    isSuccess() {
+      return this.success !== '';
+    },
+    isError() {
+      return this.error !== '';
+    },
+  },
   methods: {
-    test(e) {
+    // async showCode(event) {
+    //   const file = event.target.files[0];
+    //   const reader = new FileReader();
+    //   await reader.readAsText(file);
+
+    //   reader.onloadend = async () => {
+    //     this.textAreaValue = await reader.result;
+    //   };
+    // },
+    async test(e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      await reader.readAsText(file);
+
+      reader.onloadend = async () => {
+        this.textAreaValue = await reader.result;
+      };
       axios({
         method: 'post',
         url: 'http://localhost:3000/api/code',
@@ -19,9 +53,12 @@ export default {
           file: e.target.files[0].path,
         },
       }).then((values) => {
-        console.log(values);
+        console.log('Values: ', values);
+        this.error = '';
+        this.success = 'Passou liso!';
       }).catch((err) => {
-        console.log(err);
+        this.error = err.response.data.error;
+        this.success = '';
       });
     },
   },
@@ -30,5 +67,29 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  .compilador {
+    display: flex;
+    flex-direction: column;
+
+    textarea{
+      margin: 10px;
+      width: 500px;
+      height: 500px;
+      background: url(http://i.imgur.com/2cOaJ.png);
+      background-attachment: local;
+      background-repeat: no-repeat;
+      padding-left: 35px;
+      padding-top: 10px;
+      border-color:#ccc;
+    }
+
+    .success{
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  }
 
 </style>

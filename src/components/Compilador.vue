@@ -38,6 +38,8 @@ export default {
       reader.onloadend = async () => {
         this.textAreaValue = await reader.result;
       };
+      this.success = '';
+      this.error = '';
     },
     async test() {
       // const file = e.target.files[0];

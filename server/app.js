@@ -16,9 +16,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.post('/api/code', async (req, res, next) => {
-  const { file } = req.body;
+  const { code } = req.body;
   try {
-    await index(file);
+    await index(code);
     res.status(200).json({
       message: 'TESTE',
       error: false,

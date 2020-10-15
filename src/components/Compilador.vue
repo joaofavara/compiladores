@@ -86,9 +86,11 @@ export default {
       background: url(http://i.imgur.com/2cOaJ.png);
       background-attachment: local;
       background-repeat: no-repeat;
+      background-position-y: -2px;
       padding-left: 35px;
       padding-top: 10px;
       border-color:#ccc;
+      line-height: 125%;
     }
 
     .success{

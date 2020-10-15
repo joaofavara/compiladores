@@ -14,7 +14,7 @@ module.exports = class AnalisadorSintatico {
           this.analisarBloco();
           if (this.tokenAtual && this.tokenAtual.simbolo === 'sponto') {
             this.lertoken();
-            if (this.tratadorLexico.tokenAtual === undefined) {
+            if (this.tokenAtual === undefined) {
               console.log('Fim da execucao\n');
             } else {
               throw new Error(`Token "${this.tokenAtual.lexema}" inesperado:${this.tokenAtual.linha}:${this.tokenAtual.coluna} `);

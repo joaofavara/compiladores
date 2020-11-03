@@ -1,60 +1,82 @@
-const { app } = require('electron');
-
+/* eslint-disable class-methods-use-this */
 module.exports = class AnalisadorSemantico {
   constructor() {
     this.tabelaDeSimbolos = [];
     this.nivel = 0;
   }
 
-  /*
-    –Token. Lexema = lexema do token
-    –tipo do lexema = nome de programa, variável, procedimento, função inteiro, função boolean.
-    –Nível: L: marca ou novo galho
-    –Rótulo: Para geração de código
-  */
-
-  insere_tabela(lexema, tipoLexema, nivel, rotulo) {
+  insereTabela(lexema, tipoLexema, rotulo = null) {
     const obj = {
       lexema,
       tipoLexema,
-      nivel,
+      nivel: this.nivel,
       rotulo,
     };
 
-    this.tabelaDeSimbolos.push(obj);
+    this.tabelaDeSimbolos.unshift(obj);
   }
 
-  coloca_tipo_tabela(lexema) {
+  colocaTipoTabela(tipo) {
+    this.tabelaDeSimbolos = this.tabelaDeSimbolos.map((elemento) => {
+      if (elemento.tipoLexema === 'variavel') {
+        // eslint-disable-next-line no-param-reassign
+        elemento.tipoLexema = tipo;
+      }
 
+      return elemento;
+    });
+  }
+
+  colocaTipoFuncao(tipo) {
+    const ultimoSimbolo = this.tabelaDeSimbolos.length - 1;
+    if (tipo === 'sinteiro') {
+      this.tabelaDeSimbolos[ultimoSimbolo].tipoLexema = 'funcao inteiro';
+    } else {
+      this.tabelaDeSimbolos[ultimoSimbolo].tipoLexema = 'funcao booleana';
+    }
+  }
+
+  pesquisaTabela(lexema) {
+    const tabAux = this.tabelaDeSimbolos;
+    let simboloEncontrado = {};
+
+    tabAux.forEach((element) => {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
+        simboloEncontrado = element;
+      }
+    });
+
+    return simboloEncontrado;
+  }
+
+  confereTipoSimbolo(simbolo) {
+    if (simbolo.tipoLexema === 'funcao inteiro' || simbolo.tipoLexema === 'funcao booleana') {
+      return true;
+    }
+    return false;
   }
 
   pesquisaDuplicVarTabela(lexema) {
     const tabAux = this.tabelaDeSimbolos;
-    let declarado = tabAux.pop();
-
-    while (declarado && declarado.nivel === this.nivel) {
-      if (declarado.lexema === lexema) {
-        return false;
-      }
-      declarado = tabAux.pop();
-    }
-
-    while (declarado) {
-      if ((declarado.tipoLexema === 'procedimento' || declarado.tipoLexema === 'funcao' || declarado.tipoLexema === 'nome_de_programa') && declarado.lexema === lexema) {
-        return false;
-      }
-      declarado = tabAux.pop();
-    }
-
-    return true;
-  }
-
-  pesquisaDeclvarTabela(lexema) {
-    const tabAux = this.tabelaDeSimbolos.invert();
     let teste = false;
 
     tabAux.forEach((element) => {
-      if (element.tipoLexema === 'variavel' && element.lexema === lexema) {
+      if (element.nivel === this.nivel && element.lexema === lexema) {
+        teste = true;
+      } else if (element.nivel !== this.nivel && element.lexema === lexema && (element.tipoLexema === 'procedimento' || element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'nomedeprograma')) {
+        teste = true;
+      }
+    });
+
+    return teste;
+  }
+
+  pesquisaDeclvarTabela(lexema) {
+    const tabAux = this.tabelaDeSimbolos;
+    let teste = false;
+
+    tabAux.forEach((element) => {
+      if (element.lexema === lexema && (element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         teste = true;
       }
     });
@@ -63,11 +85,11 @@ module.exports = class AnalisadorSemantico {
   }
 
   pesquisaDeclvarfuncTabela(lexema) {
-    const tabAux = this.tabelaDeSimbolos.invert();
+    const tabAux = this.tabelaDeSimbolos;
     let teste = false;
 
     tabAux.forEach((element) => {
-      if ((element.tipoLexema === 'funcao' || element.tipoLexema === 'variavel') && element.lexema === lexema) {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         teste = true;
       }
     });
@@ -76,11 +98,11 @@ module.exports = class AnalisadorSemantico {
   }
 
   pesquisaDeclprocTabela(lexema) {
-    const tabAux = this.tabelaDeSimbolos.invert();
+    const tabAux = this.tabelaDeSimbolos;
     let teste = false;
 
     tabAux.forEach((element) => {
-      if (element.tipoLexema === 'procedimento' && element.lexema === lexema) {
+      if (element.lexema === lexema && element.tipoLexema === 'procedimento') {
         teste = true;
       }
     });
@@ -89,11 +111,11 @@ module.exports = class AnalisadorSemantico {
   }
 
   pesquisaDeclfuncTabela(lexema) {
-    const tabAux = this.tabelaDeSimbolos.invert();
+    const tabAux = this.tabelaDeSimbolos;
     let teste = false;
 
     tabAux.forEach((element) => {
-      if (element.tipoLexema === 'funcao' && element.lexema === lexema) {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana')) {
         teste = true;
       }
     });
@@ -102,12 +124,13 @@ module.exports = class AnalisadorSemantico {
   }
 
   desempilhaNivel() {
-    this.tabelaDeSimbolos = this.tabelaDeSimbolos.map((elemento) => {
-      if (elemento.nivel !== this.nivel) {
-        return elemento;
-      }
-    });
-
+    // eslint-disable-next-line max-len
+    this.tabelaDeSimbolos = this.tabelaDeSimbolos.filter((elemento) => elemento.nivel !== this.nivel || (elemento.tipoLexema !== 'inteiro' && elemento.tipoLexema !== 'booleano'));
     this.nivel -= 1;
+    this.tabelaDeSimbolos[this.tabelaDeSimbolos.length - 1].nivel = this.nivel;
+  }
+
+  incrementaNivel() {
+    this.nivel += 1;
   }
 };

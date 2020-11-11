@@ -1,39 +1,75 @@
 /* eslint-disable no-underscore-dangle */
 const precedenciaOPeradores = require('./PrecedenciaDeOperadores');
+const AnalisadorSem = require('../semantico/AnalisadorSemantico');
 
 module.exports = class AnalisadorSemantico {
   constructor() {
+    this._aSemantico = new AnalisadorSem();
     this._lista = [];
     this._pilha = [];
   }
 
-  _colocaElementoLista(elemento) {
-    this._lista.push(elemento);
+  colocaElementoLista(elemento, tipoElemento = undefined) {
+    let tipo = tipoElemento;
+
+    if (!tipo) {
+      if (/[0-9]/.test(elemento)) {
+        tipo = 'inteiro';
+      } else if (elemento === 'verdadeiro' || elemento === 'falso') {
+        tipo = 'booleano';
+      } else if (/[\W]|[nao]|[e]|[ou]|[div]|[-u]|[+u]/.test(elemento)) {
+        tipo = 'operador';
+      }
+    }
+
+    this._lista.push({ elemento, tipo });
   }
 
-  _colocaElementoPilha(elemento) {
-    let ultimoElemento = this._pilha[this._pilha.length - 1];
+  colocaElementoPilha(novoElemento) {
+    const ultimoElemento = this._pilha[this._pilha.length - 1];
     let prioridade;
 
-    precedenciaOPeradores.forEach((precedencia) => {
-      // eslint-disable-next-line max-len
-      if (precedencia.operadores.includes(elemento)) {
-        prioridade = precedencia.prioridade;
-        if (ultimoElemento.prioridade > precedencia.prioridade) {
-          this._lista.push(ultimoElemento);
-          this._desemplinhaElementoPilha();
-          ultimoElemento = this._pilha[this._pilha.length - 1];
+    if (novoElemento !== '(' && novoElemento !== ')') {
+      precedenciaOPeradores.every((precedencia) => {
+        if (precedencia.operadores.includes(novoElemento)) {
+          prioridade = precedencia.prioridade;
+          if (ultimoElemento) {
+            this._desempilhaElementosPilha(prioridade);
+          } else {
+            return false;
+          }
         }
-      }
-    });
-
-    this._pilha.push({
-      operador: elemento,
-      prioridade,
-    });
+        return true;
+      });
+      this._pilha.push({
+        operador: novoElemento,
+        prioridade,
+      });
+    } else if (novoElemento === ')') {
+      this._desempilhaElementosPilha(0);
+      this._pilha.pop();
+    } else {
+      prioridade = 0;
+      this._pilha.push({
+        operador: novoElemento,
+        prioridade,
+      });
+    }
   }
 
-  _desemplinhaElementoPilha() {
-    this._pilha.pop();
+  descarregaPilha() {
+    this._desempilhaElementosPilha(0);
+    // console.log(this._lista);
+    // console.log('----------------\n');
+    this._lista = [];
+  }
+
+  _desempilhaElementosPilha(prioridade) {
+    let ultimoElemento = this._pilha[this._pilha.length - 1];
+    while (ultimoElemento && ultimoElemento.operador !== '(' && ultimoElemento.prioridade >= prioridade) {
+      this._pilha.pop();
+      this.colocaElementoLista(ultimoElemento.operador);
+      ultimoElemento = this._pilha[this._pilha.length - 1];
+    }
   }
 };

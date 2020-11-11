@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 module.exports = class AnalisadorSintatico {
-  constructor(tratadorLexico, analisadorSemantico) {
+  constructor(tratadorLexico, analisadorSemantico, geradorDeCodigo) {
     this._tratadorLexico = tratadorLexico;
     this._analisadorSemantico = analisadorSemantico;
+    this._geradorCodigo = geradorDeCodigo;
     this._tokenAnterior = undefined;
     this._tokenAtual = undefined;
   }
@@ -57,6 +58,7 @@ module.exports = class AnalisadorSintatico {
   _analisarAtribuicao() {
     this._lertoken();
     this._analisarExpressaoSimples();
+    this._geradorCodigo.descarregaPilha();
   }
 
   _analisarChamadaDeFuncao() {
@@ -166,6 +168,7 @@ module.exports = class AnalisadorSintatico {
   _analisarEnquanto() {
     this._lertoken();
     this._analisarExpressao();
+    this._geradorCodigo.descarregaPilha();
     if (this._tokenAtual.simbolo === 'sfaca') {
       this._lertoken();
       this._analisarComandoSimples();
@@ -217,7 +220,8 @@ module.exports = class AnalisadorSintatico {
 
   _analisarExpressao() {
     this._analisarExpressaoSimples();
-    if (['smaior', 'smaiorig', 'sig', 'smenor', 'smenorig', 'sdif'].includes(this._tokenAtual.simbolo)) {
+    while (['smaior', 'smaiorig', 'sig', 'smenor', 'smenorig', 'sdif'].includes(this._tokenAtual.simbolo)) {
+      this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
       this._lertoken();
       this._analisarExpressaoSimples();
     }
@@ -225,10 +229,12 @@ module.exports = class AnalisadorSintatico {
 
   _analisarExpressaoSimples() {
     if (this._tokenAtual.simbolo === 'smais' || this._tokenAtual.simbolo === 'smenos') {
+      this._geradorCodigo.colocaElementoPilha(`${this._tokenAtual.lexema}u`);
       this._lertoken();
     }
     this._analisarTermo();
     while (this._tokenAtual.simbolo === 'smais' || this._tokenAtual.simbolo === 'smenos' || this._tokenAtual.simbolo === 'sou') {
+      this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
       this._lertoken();
       this._analisarTermo();
     }
@@ -241,26 +247,35 @@ module.exports = class AnalisadorSintatico {
       if (!(Object.keys(simboloEncontrado).length === 0 && simboloEncontrado.constructor === Object)) {
         if (this._analisadorSemantico.confereTipoFuncao(simboloEncontrado)) {
           // analisarChamadaFuncao();
+          // eslint-disable-next-line max-len
+          this._geradorCodigo.colocaElementoLista(this._tokenAtual.lexema, simboloEncontrado.tipoLexema);
         } else {
+          // eslint-disable-next-line max-len
+          this._geradorCodigo.colocaElementoLista(this._tokenAtual.lexema, simboloEncontrado.tipoLexema);
           this._lertoken();
         }
       } else {
         throw new Error(`Variavel ou funcao "${this._tokenAtual.lexema}" nao declarada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     } else if (this._tokenAtual.simbolo === 'snumero') {
+      this._geradorCodigo.colocaElementoLista(this._tokenAtual.lexema);
       this._lertoken();
     } else if (this._tokenAtual.simbolo === 'snao') {
+      this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
       this._lertoken();
       this._analisarFator();
     } else if (this._tokenAtual.simbolo === 'sabreparenteses') {
+      this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
       this._lertoken();
       this._analisarExpressao();
       if (this._tokenAtual.simbolo === 'sfechaparenteses') {
+        this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
         this._lertoken();
       } else {
         throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ")":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     } else if (this._tokenAtual.lexema === 'verdadeiro' || this._tokenAtual.lexema === 'falso') {
+      this._geradorCodigo.colocaElementoLista(this._tokenAtual.lexema);
       this._lertoken();
     } else {
       throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "(":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
@@ -293,6 +308,7 @@ module.exports = class AnalisadorSintatico {
   _analisarSe() {
     this._lertoken();
     this._analisarExpressao();
+    this._geradorCodigo.descarregaPilha();
     if (this._tokenAtual.simbolo === 'sentao') {
       this._lertoken();
       this._analisarComandoSimples();
@@ -371,6 +387,7 @@ module.exports = class AnalisadorSintatico {
   _analisarTermo() {
     this._analisarFator();
     while (this._tokenAtual.simbolo === 'smult' || this._tokenAtual.simbolo === 'sdiv' || this._tokenAtual.simbolo === 'se') {
+      this._geradorCodigo.colocaElementoPilha(this._tokenAtual.lexema);
       this._lertoken();
       this._analisarFator();
     }

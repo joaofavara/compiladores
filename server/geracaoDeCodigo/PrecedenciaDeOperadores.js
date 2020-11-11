@@ -1,6 +1,6 @@
 module.exports = [
   {
-    operadores: ['-u', '+u', 'not'],
+    operadores: ['-u', '+u', 'nao'],
     prioridade: 7,
   },
   {
@@ -20,11 +20,11 @@ module.exports = [
     prioridade: 3,
   },
   {
-    operadores: ['and'],
+    operadores: ['e'],
     prioridade: 2,
   },
   {
-    operadores: ['or'],
+    operadores: ['ou'],
     prioridade: 1,
   },
 ];

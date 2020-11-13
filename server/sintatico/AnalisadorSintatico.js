@@ -56,9 +56,17 @@ module.exports = class AnalisadorSintatico {
   }
 
   _analisarAtribuicao() {
+    const linhaInicial = this._tokenAtual.linha;
+    const colunaInicial = this._tokenAtual.coluna;
+    const tokenVariavel = this._tokenAnterior;
+
     this._lertoken();
     this._analisarExpressaoSimples();
-    this._geradorCodigo.descarregaPilha();
+
+    const simbolo = this._analisadorSemantico.pesquisaFator(tokenVariavel.lexema);
+    if (!this._geradorCodigo.descarregaPilhaComparaTipo(simbolo.tipoLexema)) {
+      throw new Error(`Expressão invalida. Os tipos são incompativeis:${linhaInicial}:${colunaInicial} `);
+    }
   }
 
   _analisarChamadaDeFuncao() {
@@ -166,14 +174,20 @@ module.exports = class AnalisadorSintatico {
   }
 
   _analisarEnquanto() {
+    const linhaInicial = this._tokenAtual.linha;
+    const colunaInicial = this._tokenAtual.coluna;
     this._lertoken();
     this._analisarExpressao();
-    this._geradorCodigo.descarregaPilha();
-    if (this._tokenAtual.simbolo === 'sfaca') {
-      this._lertoken();
-      this._analisarComandoSimples();
+
+    if (this._geradorCodigo.descarregaPilhaComparaTipo('booleano')) {
+      if (this._tokenAtual.simbolo === 'sfaca') {
+        this._lertoken();
+        this._analisarComandoSimples();
+      } else {
+        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "faca":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      }
     } else {
-      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "faca":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      throw new Error(`Expressão invalida. A Expressao deve retornar um booleano:${linhaInicial}:${colunaInicial} `);
     }
   }
 
@@ -306,18 +320,24 @@ module.exports = class AnalisadorSintatico {
   }
 
   _analisarSe() {
+    const linhaInicial = this._tokenAtual.linha;
+    const colunaInicial = this._tokenAtual.coluna;
+
     this._lertoken();
     this._analisarExpressao();
-    this._geradorCodigo.descarregaPilha();
-    if (this._tokenAtual.simbolo === 'sentao') {
-      this._lertoken();
-      this._analisarComandoSimples();
-      if (this._tokenAtual.simbolo === 'ssenao') {
+    if (this._geradorCodigo.descarregaPilhaComparaTipo('booleano')) {
+      if (this._tokenAtual.simbolo === 'sentao') {
         this._lertoken();
         this._analisarComandoSimples();
+        if (this._tokenAtual.simbolo === 'ssenao') {
+          this._lertoken();
+          this._analisarComandoSimples();
+        }
+      } else {
+        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "entao":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     } else {
-      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "entao":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      throw new Error(`Expressão invalida. A Expressao deve retornar um booleano:${linhaInicial}:${colunaInicial} `);
     }
   }
 

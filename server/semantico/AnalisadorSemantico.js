@@ -40,7 +40,6 @@ module.exports = class AnalisadorSemantico {
   pesquisaFator(lexema) {
     const tabAux = this._tabelaDeSimbolos;
     let simboloEncontrado = {};
-
     tabAux.forEach((element) => {
       if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         simboloEncontrado = element;

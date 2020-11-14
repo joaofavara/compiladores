@@ -66,11 +66,15 @@ module.exports = class AnalisadorSemantico {
     // console.log(`retorno: ${tipoExpressao} ${tipo}\n`);
     // console.log('----------------\n');
     this._lista = [];
-    if (tipo !== tipoExpressao) {
-      return false;
+    if ((tipoExpressao === 'inteiro' || tipoExpressao === 'funcaoInteira') && (tipo === 'inteiro' || tipo === 'funcaoInteira')) {
+      return true;
     }
 
-    return true;
+    if ((tipoExpressao === 'booleano' || tipoExpressao === 'funcaoBooleana') && (tipo === 'booleano' || tipo === 'funcaoBooleana')) {
+      return true;
+    }
+
+    return false;
   }
 
   _desempilhaElementosPilha(prioridadeAtual) {
@@ -88,7 +92,7 @@ module.exports = class AnalisadorSemantico {
     for (let i = 0; i < listaAux.length; i += 1) {
       if (listaAux[i].tipo === 'operador') {
         if (listaAux[i].elemento === '-u' || listaAux[i].elemento === '+u') {
-          if (listaAux[i - 1].tipo !== 'inteiro') {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -97,7 +101,7 @@ module.exports = class AnalisadorSemantico {
             i -= 1;
           }
         } else if (listaAux[i].elemento === 'not') {
-          if (listaAux[i - 1].tipo !== 'booleano') {
+          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -106,7 +110,7 @@ module.exports = class AnalisadorSemantico {
             i -= 1;
           }
         } else if (listaAux[i].elemento === 'e' || listaAux[i].elemento === 'ou') {
-          if (listaAux[i - 1].tipo !== 'booleano' && listaAux[i - 2].tipo !== 'booleano') {
+          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) && !['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -116,7 +120,7 @@ module.exports = class AnalisadorSemantico {
             i -= 2;
           }
         } else if (['+', '-', '*', 'div'].includes(listaAux[i].elemento)) {
-          if (listaAux[i - 1].tipo !== 'inteiro' && listaAux[i - 2].tipo !== 'inteiro') {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -126,7 +130,7 @@ module.exports = class AnalisadorSemantico {
             i -= 2;
           }
         } else if (['>', '>=', '<', '<=', '=', '!='].includes(listaAux[i].elemento)) {
-          if (listaAux[i - 1].tipo !== 'inteiro' && listaAux[i - 2].tipo !== 'inteiro') {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {

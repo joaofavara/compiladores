@@ -1,3 +1,4 @@
+/* eslint-disable no-dupe-class-members */
 /* eslint-disable no-underscore-dangle */
 module.exports = class AnalisadorSintatico {
   constructor(tratadorLexico, analisadorSemantico, geradorDeCodigo) {
@@ -20,6 +21,7 @@ module.exports = class AnalisadorSintatico {
           if (this._tokenAtual && this._tokenAtual.simbolo === 'sponto') {
             this._lertoken();
             if (this._tokenAtual === undefined) {
+              console.log(this._analisadorSemantico._tabelaDeSimbolos);
               console.log('Fim da execucao\n');
             } else {
               throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. O programa deve encerrar com ".":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
@@ -46,16 +48,16 @@ module.exports = class AnalisadorSintatico {
     this._tokenAtual = this._tratadorLexico.adquirirToken();
   }
 
-  _analisarAtribChprocedimento() {
+  _analisarAtribChprocedimento(nomeFuncao) {
     this._lertoken();
     if (this._tokenAtual.simbolo === 'satribuicao') {
-      this._analisarAtribuicao();
+      this._analisarAtribuicao(nomeFuncao);
     } else {
       this._analisarChamadaDeProcedimento();
     }
   }
 
-  _analisarAtribuicao() {
+  _analisarAtribuicao(nomeFuncao) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
     const tokenVariavel = this._tokenAnterior;
@@ -64,8 +66,13 @@ module.exports = class AnalisadorSintatico {
     this._analisarExpressaoSimples();
 
     const simbolo = this._analisadorSemantico.pesquisaFator(tokenVariavel.lexema);
+
     if (!this._geradorCodigo.descarregaPilhaComparaTipo(simbolo.tipoLexema)) {
       throw new Error(`Expressão invalida. Os tipos são incompativeis:${linhaInicial}:${colunaInicial} `);
+    }
+
+    if (simbolo.lexema === nomeFuncao) {
+      this._analisadorSemantico.confirmarRetorno(true);
     }
   }
 
@@ -79,22 +86,23 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarBloco() {
+  _analisarBloco(nomeFuncao = null) {
     this._lertoken();
     this._analisarEtVariaveis();
     this._analisarSubrotinas();
-    this._analisarComandos();
+    this._analisarComandos(nomeFuncao);
   }
 
-  _analisarComandos() {
+  _analisarComandos(nomeFuncao) {
     if (this._tokenAtual.simbolo === 'sinicio') {
+      this._analisadorSemantico.confirmarRetorno(false);
       this._lertoken();
-      this._analisarComandoSimples();
+      this._analisarComandoSimples(nomeFuncao);
       while (this._tokenAtual.simbolo !== 'sfim') {
         if (this._tokenAtual.simbolo === 'spontovirgula') {
           this._lertoken();
           if (this._tokenAtual.simbolo !== 'sfim') {
-            this._analisarComandoSimples();
+            this._analisarComandoSimples(nomeFuncao);
           }
         } else {
           throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
@@ -106,19 +114,24 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarComandoSimples() {
+  _analisarComandoSimples(nomeFuncao) {
     if (this._tokenAtual.simbolo === 'sidentificador') {
-      this._analisarAtribChprocedimento();
+      this._analisadorSemantico.confirmarRetorno(false);
+      this._analisarAtribChprocedimento(nomeFuncao);
     } else if (this._tokenAtual.simbolo === 'sse') {
-      this._analisarSe();
+      this._analisadorSemantico.confirmarRetorno(false);
+      this._analisarSe(nomeFuncao);
     } else if (this._tokenAtual.simbolo === 'senquanto') {
-      this._analisarEnquanto();
+      this._analisadorSemantico.confirmarRetorno(false);
+      this._analisarEnquanto(nomeFuncao);
     } else if (this._tokenAtual.simbolo === 'sleia') {
+      this._analisadorSemantico.confirmarRetorno(false);
       this._analisarLeia();
     } else if (this._tokenAtual.simbolo === 'sescreva') {
+      this._analisadorSemantico.confirmarRetorno(false);
       this._analisarEscreva();
     } else {
-      this._analisarComandos();
+      this._analisarComandos(nomeFuncao);
     }
   }
 
@@ -128,6 +141,7 @@ module.exports = class AnalisadorSintatico {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       if (!this._analisadorSemantico.pesquisaDeclvarfuncTabela(this._tokenAtual.lexema)) {
         this._analisadorSemantico.insereTabela(this._tokenAtual.lexema, '');
+        const nomeFuncao = this._tokenAtual.lexema;
         this._lertoken();
         if (this._tokenAtual.simbolo === 'sdoispontos') {
           this._lertoken();
@@ -135,7 +149,10 @@ module.exports = class AnalisadorSintatico {
             this._analisadorSemantico.colocaTipoFuncao(this._tokenAtual.simbolo);
             this._lertoken();
             if (this._tokenAtual.simbolo === 'spontovirgula') {
-              this._analisarBloco();
+              this._analisarBloco(nomeFuncao);
+              if (!this._analisadorSemantico._testeRetornoFunc) {
+                throw new Error(`Não existe retorno alcancavel para a funcao: "${nomeFuncao}": ${this._tokenAtual.linha} ${this._tokenAtual.coluna}"`);
+              }
             }
           } else {
             throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "inteiro" ou "booleano":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
@@ -173,7 +190,7 @@ module.exports = class AnalisadorSintatico {
     this._analisadorSemantico.desempilhaNivel();
   }
 
-  _analisarEnquanto() {
+  _analisarEnquanto(nomeFuncao = null) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
     this._lertoken();
@@ -182,7 +199,7 @@ module.exports = class AnalisadorSintatico {
     if (this._geradorCodigo.descarregaPilhaComparaTipo('booleano')) {
       if (this._tokenAtual.simbolo === 'sfaca') {
         this._lertoken();
-        this._analisarComandoSimples();
+        this._analisarComandoSimples(nomeFuncao);
       } else {
         throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "faca":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
@@ -254,13 +271,17 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
+  _analisarChamadaFuncao() {
+    this._lertoken();
+  }
+
   _analisarFator() {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       const simboloEncontrado = this._analisadorSemantico.pesquisaFator(this._tokenAtual.lexema);
       // eslint-disable-next-line max-len
       if (!(Object.keys(simboloEncontrado).length === 0 && simboloEncontrado.constructor === Object)) {
         if (this._analisadorSemantico.confereTipoFuncao(simboloEncontrado)) {
-          // analisarChamadaFuncao();
+          this._analisarChamadaFuncao();
           // eslint-disable-next-line max-len
           this._geradorCodigo.colocaElementoLista(this._tokenAtual.lexema, simboloEncontrado.tipoLexema);
         } else {
@@ -319,7 +340,7 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarSe() {
+  _analisarSe(nomeFuncao = null) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
 
@@ -328,10 +349,10 @@ module.exports = class AnalisadorSintatico {
     if (this._geradorCodigo.descarregaPilhaComparaTipo('booleano')) {
       if (this._tokenAtual.simbolo === 'sentao') {
         this._lertoken();
-        this._analisarComandoSimples();
+        this._analisarComandoSimples(nomeFuncao);
         if (this._tokenAtual.simbolo === 'ssenao') {
           this._lertoken();
-          this._analisarComandoSimples();
+          this._analisarComandoSimples(nomeFuncao);
         }
       } else {
         throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "entao":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);

@@ -4,6 +4,7 @@ module.exports = class AnalisadorSemantico {
   constructor() {
     this._tabelaDeSimbolos = [];
     this._nivel = 0;
+    this._testeRetornoFunc = false;
   }
 
   insereTabela(lexema, tipoLexema, rotulo = null) {
@@ -29,11 +30,10 @@ module.exports = class AnalisadorSemantico {
   }
 
   colocaTipoFuncao(tipo) {
-    const ultimoSimbolo = this._tabelaDeSimbolos.length - 1;
     if (tipo === 'sinteiro') {
-      this._tabelaDeSimbolos[ultimoSimbolo].tipoLexema = 'funcao inteiro';
+      this._tabelaDeSimbolos[0].tipoLexema = 'funcaoInteira';
     } else {
-      this._tabelaDeSimbolos[ultimoSimbolo].tipoLexema = 'funcao booleana';
+      this._tabelaDeSimbolos[0].tipoLexema = 'funcaoBooleana';
     }
   }
 
@@ -41,7 +41,7 @@ module.exports = class AnalisadorSemantico {
     const tabAux = this._tabelaDeSimbolos;
     let simboloEncontrado = {};
     tabAux.forEach((element) => {
-      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcaoInteira' || element.tipoLexema === 'funcaoBooleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         simboloEncontrado = element;
       }
     });
@@ -50,7 +50,7 @@ module.exports = class AnalisadorSemantico {
   }
 
   confereTipoFuncao(simbolo) {
-    if (simbolo.tipoLexema === 'funcao inteiro' || simbolo.tipoLexema === 'funcao booleana') {
+    if (simbolo.tipoLexema === 'funcaoInteira' || simbolo.tipoLexema === 'funcaoBooleana') {
       return true;
     }
     return false;
@@ -63,7 +63,7 @@ module.exports = class AnalisadorSemantico {
     tabAux.forEach((element) => {
       if (element.nivel === this._nivel && element.lexema === lexema) {
         teste = true;
-      } else if (element.nivel !== this._nivel && element.lexema === lexema && (element.tipoLexema === 'procedimento' || element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'nomedeprograma')) {
+      } else if (element.nivel !== this._nivel && element.lexema === lexema && (element.tipoLexema === 'procedimento' || element.tipoLexema === 'funcaoInteira' || element.tipoLexema === 'funcaoBooleana' || element.tipoLexema === 'nomedeprograma')) {
         teste = true;
       }
     });
@@ -89,7 +89,7 @@ module.exports = class AnalisadorSemantico {
     let teste = false;
 
     tabAux.forEach((element) => {
-      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcaoInteira' || element.tipoLexema === 'funcaoBooleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         teste = true;
       }
     });
@@ -115,7 +115,7 @@ module.exports = class AnalisadorSemantico {
     let teste = false;
 
     tabAux.forEach((element) => {
-      if (element.lexema === lexema && (element.tipoLexema === 'funcao inteiro' || element.tipoLexema === 'funcao booleana')) {
+      if (element.lexema === lexema && (element.tipoLexema === 'funcaoInteira' || element.tipoLexema === 'funcaoBooleana')) {
         teste = true;
       }
     });
@@ -125,9 +125,22 @@ module.exports = class AnalisadorSemantico {
 
   desempilhaNivel() {
     // eslint-disable-next-line max-len
-    this._tabelaDeSimbolos = this._tabelaDeSimbolos.filter((elemento) => elemento.nivel !== this._nivel || (elemento.tipoLexema !== 'inteiro' && elemento.tipoLexema !== 'booleano'));
+    for (let i = 0; i < this._tabelaDeSimbolos.length - 1; i += 1) {
+      if (this._nivel > this._tabelaDeSimbolos[i + 1].nivel) {
+        break;
+      }
+      this._tabelaDeSimbolos.shift();
+      i -= 1;
+    }
     this._nivel -= 1;
-    this._tabelaDeSimbolos[this._tabelaDeSimbolos.length - 1].nivel = this._nivel;
+    this._tabelaDeSimbolos[0].nivel = this._nivel;
+  }
+
+  confirmarRetorno(validade) {
+    if (validade === true) {
+      console.log();
+    }
+    this._testeRetornoFunc = validade;
   }
 
   incrementaNivel() {

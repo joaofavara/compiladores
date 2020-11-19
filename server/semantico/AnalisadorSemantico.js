@@ -1,13 +1,20 @@
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
+const precedenciaOPeradores = require('./PrecedenciaDeOperadores');
+const operacoes = require('./Operacao');
+
 module.exports = class AnalisadorSemantico {
-  constructor() {
+  constructor(geradorCodigo) {
     this._tabelaDeSimbolos = [];
     this._nivel = 0;
     this._testeRetornoFunc = false;
+    this._lista = [];
+    this._pilha = [];
+    this.geradorDeCodigo = geradorCodigo;
   }
 
-  insereTabela(lexema, tipoLexema, rotulo = null) {
+  insereTabela(lexema, tipoLexema, rotulo = -1) {
     const simbolo = {
       lexema,
       tipoLexema,
@@ -124,7 +131,6 @@ module.exports = class AnalisadorSemantico {
   }
 
   desempilhaNivel() {
-    // eslint-disable-next-line max-len
     for (let i = 0; i < this._tabelaDeSimbolos.length - 1; i += 1) {
       if (this._nivel > this._tabelaDeSimbolos[i + 1].nivel) {
         break;
@@ -145,5 +151,157 @@ module.exports = class AnalisadorSemantico {
 
   incrementaNivel() {
     this._nivel += 1;
+  }
+
+  colocaElementoLista(elemento, tipoElemento = undefined, rotulo = -1) {
+    let tipo = tipoElemento;
+
+    if (!tipo) {
+      if (/[0-9]/.test(elemento)) {
+        tipo = 'inteiro';
+      } else if (elemento === 'verdadeiro' || elemento === 'falso') {
+        tipo = 'booleano';
+      } else if (/[\W]|[nao]|[e]|[ou]|[div]|[-u]|[+u]/.test(elemento)) {
+        tipo = 'operador';
+      }
+    }
+
+    this._lista.push({ elemento, tipo, rotulo });
+  }
+
+  colocaElementoPilha(novoElemento) {
+    const ultimoElemento = this._pilha[this._pilha.length - 1];
+    let prioridade;
+
+    if (novoElemento !== '(' && novoElemento !== ')') {
+      precedenciaOPeradores.every((precedencia) => {
+        if (precedencia.operadores.includes(novoElemento)) {
+          prioridade = precedencia.prioridade;
+          if (ultimoElemento) {
+            this._desempilhaElementosPilha(prioridade);
+          } else {
+            return false;
+          }
+        }
+        return true;
+      });
+      this._pilha.push({
+        operador: novoElemento,
+        prioridade,
+      });
+    } else if (novoElemento === ')') {
+      this._desempilhaElementosPilha(0);
+      this._pilha.pop();
+    } else {
+      prioridade = 0;
+      this._pilha.push({
+        operador: novoElemento,
+        prioridade,
+      });
+    }
+  }
+
+  descarregaPilhaComparaTipo(tipo) {
+    this._desempilhaElementosPilha(0);
+
+    const tipoExpressao = this._conferirTipo();
+    this._lista = [];
+    if ((tipoExpressao === 'inteiro' || tipoExpressao === 'funcaoInteira') && (tipo === 'inteiro' || tipo === 'funcaoInteira')) {
+      return true;
+    }
+
+    if ((tipoExpressao === 'booleano' || tipoExpressao === 'funcaoBooleana') && (tipo === 'booleano' || tipo === 'funcaoBooleana')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  _desempilhaElementosPilha(prioridadeAtual) {
+    let ultimoElemento = this._pilha[this._pilha.length - 1];
+    while (ultimoElemento && ultimoElemento.operador !== '(' && ultimoElemento.prioridade >= prioridadeAtual) {
+      this._pilha.pop();
+      this.colocaElementoLista(ultimoElemento.operador);
+      ultimoElemento = this._pilha[this._pilha.length - 1];
+    }
+  }
+
+  _confereGeracaoElemento(lexema, tipo, rotulo) {
+    if (['funcaoBooleana', 'funcaoInteira'].includes(tipo)) {
+      this.geradorDeCodigo.gerarInstrucao('CALL', lexema);
+    } else if (rotulo !== -1) {
+      this.geradorDeCodigo.gerarInstrucao('LDV', rotulo);
+    } else {
+      this.geradorDeCodigo.gerarInstrucao('LDC', lexema);
+    }
+  }
+
+  _confereGeracaoOperacao(operacao) {
+    this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
+  }
+
+  _conferirTipo() {
+    const listaAux = this._lista.map((objeto) => ({ ...objeto }));
+
+    for (let i = 0; i < listaAux.length; i += 1) {
+      if (listaAux[i].tipo === 'operador') {
+        if (listaAux[i].elemento === '-u' || listaAux[i].elemento === '+u') {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo)) {
+            listaAux[0].tipo = 'erro';
+            break;
+          } else {
+            listaAux[i - 1].elemento = listaAux[i - 1].elemento + listaAux[i].elemento;
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i, 1);
+            i -= 1;
+          }
+        } else if (listaAux[i].elemento === 'not') {
+          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo)) {
+            listaAux[0].tipo = 'erro';
+            break;
+          } else {
+            listaAux[i - 1].elemento = listaAux[i - 1].elemento + listaAux[i].elemento;
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i, 1);
+            i -= 1;
+          }
+        } else if (listaAux[i].elemento === 'e' || listaAux[i].elemento === 'ou') {
+          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) && !['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo)) {
+            listaAux[0].tipo = 'erro';
+            break;
+          } else {
+            listaAux[i - 2].elemento = listaAux[i - 2].elemento + listaAux[i - 1].elemento + listaAux[i].elemento;
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i - 1, 2);
+            i -= 2;
+          }
+        } else if (['+', '-', '*', 'div'].includes(listaAux[i].elemento)) {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
+            listaAux[0].tipo = 'erro';
+            break;
+          } else {
+            listaAux[i - 2].elemento = listaAux[i - 2].elemento + listaAux[i - 1].elemento + listaAux[i].elemento;
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i - 1, 2);
+            i -= 2;
+          }
+        } else if (['>', '>=', '<', '<=', '=', '!='].includes(listaAux[i].elemento)) {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
+            listaAux[0].tipo = 'erro';
+            break;
+          } else {
+            listaAux[i - 2].elemento = listaAux[i - 2].elemento + listaAux[i - 1].elemento + listaAux[i].elemento;
+            listaAux[i - 2].tipo = 'booleano';
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i - 1, 2);
+            i -= 2;
+          }
+        }
+      } else {
+        this._confereGeracaoElemento(listaAux[i].elemento, listaAux[i].tipoElemento, listaAux[i].rotulo);
+      }
+    }
+
+    return listaAux[0].tipo;
   }
 };

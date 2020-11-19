@@ -5,8 +5,9 @@ const GeradorDeCodigo = require('./geracaoDeCodigo/GeradorDeCodigo');
 
 module.exports = async (code) => {
   const tLexico = new TratadorLexico(code);
-  const aSemantico = new AnalisadorSemantico();
   const gCodigo = new GeradorDeCodigo();
+  const aSemantico = new AnalisadorSemantico(gCodigo);
+
   const aSintatico = new AnalisadorSintatico(tLexico, aSemantico, gCodigo);
 
   aSintatico.analisarPrograma();

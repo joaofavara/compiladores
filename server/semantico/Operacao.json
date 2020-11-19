@@ -1,0 +1,15 @@
+{
+    ">": "CMA",
+    ">=": "CMAQ",
+    "=": "CEQ",
+    "<": "CME",
+    "<=": "CMEQ",
+    "!=": "CDIF",
+    "+": "ADD",
+    "-": "SUB",
+    "*": "MULT",
+    "div": "DIVI",
+    "e": "AND",
+    "ou": "OR",
+    "nao": "NOT"
+}

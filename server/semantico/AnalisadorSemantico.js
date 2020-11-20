@@ -1,3 +1,5 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-param-reassign */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
@@ -28,10 +30,8 @@ module.exports = class AnalisadorSemantico {
   colocaTipoTabela(tipo) {
     this._tabelaDeSimbolos = this._tabelaDeSimbolos.map((elemento) => {
       if (elemento.tipoLexema === 'variavel') {
-        // eslint-disable-next-line no-param-reassign
         elemento.tipoLexema = tipo;
       }
-
       return elemento;
     });
   }
@@ -47,12 +47,13 @@ module.exports = class AnalisadorSemantico {
   pesquisaFator(lexema) {
     const tabAux = this._tabelaDeSimbolos;
     let simboloEncontrado = {};
-    tabAux.forEach((element) => {
+    tabAux.every((element) => {
       if (element.lexema === lexema && (element.tipoLexema === 'funcaoInteira' || element.tipoLexema === 'funcaoBooleana' || element.tipoLexema === 'inteiro' || element.tipoLexema === 'booleano')) {
         simboloEncontrado = element;
+        return false;
       }
+      return true;
     });
-
     return simboloEncontrado;
   }
 
@@ -143,9 +144,6 @@ module.exports = class AnalisadorSemantico {
   }
 
   confirmarRetorno(validade) {
-    if (validade === true) {
-      console.log();
-    }
     this._testeRetornoFunc = validade;
   }
 
@@ -226,16 +224,6 @@ module.exports = class AnalisadorSemantico {
     }
   }
 
-  _confereGeracaoElemento(lexema, tipo, rotulo) {
-    if (['funcaoBooleana', 'funcaoInteira'].includes(tipo)) {
-      this.geradorDeCodigo.gerarInstrucao('CALL', lexema);
-    } else if (rotulo !== -1) {
-      this.geradorDeCodigo.gerarInstrucao('LDV', rotulo);
-    } else {
-      this.geradorDeCodigo.gerarInstrucao('LDC', lexema);
-    }
-  }
-
   _confereGeracaoOperacao(operacao) {
     this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
   }
@@ -298,7 +286,14 @@ module.exports = class AnalisadorSemantico {
           }
         }
       } else {
-        this._confereGeracaoElemento(listaAux[i].elemento, listaAux[i].tipoElemento, listaAux[i].rotulo);
+        if (['funcaoBooleana', 'funcaoInteira'].includes(listaAux[i].tipo)) {
+          this.geradorDeCodigo.gerarInstrucao('CALL', listaAux[i].elemento);
+          this._geradorCodigo.gerarInstrucao('LDV', 0);
+        } else if (listaAux[i].rotulo !== -1) {
+          this.geradorDeCodigo.gerarInstrucao('LDV', listaAux[i].rotulo);
+        } else {
+          this.geradorDeCodigo.gerarInstrucao('LDC', listaAux[i].elemento);
+        }
       }
     }
 

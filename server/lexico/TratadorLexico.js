@@ -1,54 +1,55 @@
+/* eslint-disable no-underscore-dangle */
 const listaSimbolos = require('./Token.json');
 
 module.exports = class AnalisadorLexico {
   constructor(codigoPrograma) {
-    this.codigo = codigoPrograma.replace(/(\t|\r)/gm, '').split('\n');
-    this.linha = 0;
-    this.coluna = 0;
-    this.linhaAtual = this.codigo[this.linha];
+    this._codigo = codigoPrograma.replace(/(\t|\r)/gm, '').split('\n');
+    this._linha = 0;
+    this._coluna = 0;
+    this._linhaAtual = this._codigo[this._linha];
   }
 
   adquirirToken() {
-    this.consumirComentarios();
-    const token = this.pegarToken();
-    this.consumirEspacos();
+    this._consumirComentarios();
+    const token = this._pegarToken();
+    this._consumirEspacos();
     return token;
   }
 
-  pegarToken() {
-    if (this.linhaAtual === undefined) {
+  _pegarToken() {
+    if (this._linhaAtual === undefined) {
       return undefined;
     }
 
-    if (/[0-9]/.test(this.linhaAtual[this.coluna])) {
-      return this.tratarDigito();
-    } if (/[a-zA-Z]/.test(this.linhaAtual[this.coluna])) {
-      return this.tratarIdentificadorPalavraReservada();
-    } if (this.linhaAtual[this.coluna] === ':') {
-      return this.tratarAtribuicao();
-    } if (['+', '-', '*'].includes(this.linhaAtual[this.coluna])) {
-      return this.tratarOperadorAritmetico();
-    } if (['<', '>', '=', '!'].includes(this.linhaAtual[this.coluna])) {
-      return this.tratarOperadorRelacional();
-    } if ([';', '(', ')', '.', ','].includes(this.linhaAtual[this.coluna])) {
-      return this.tratarPontuacao();
+    if (/[0-9]/.test(this._linhaAtual[this._coluna])) {
+      return this._tratarDigito();
+    } if (/[a-zA-Z]/.test(this._linhaAtual[this._coluna])) {
+      return this._tratarIdentificadorPalavraReservada();
+    } if (this._linhaAtual[this._coluna] === ':') {
+      return this._tratarAtribuicao();
+    } if (['+', '-', '*'].includes(this._linhaAtual[this._coluna])) {
+      return this._tratarOperadorAritmetico();
+    } if (['<', '>', '=', '!'].includes(this._linhaAtual[this._coluna])) {
+      return this._tratarOperadorRelacional();
+    } if ([';', '(', ')', '.', ','].includes(this._linhaAtual[this._coluna])) {
+      return this._tratarPontuacao();
     }
 
-    throw new Error(`Caractere "${this.linhaAtual[this.coluna]}" nao reconhecido:${this.linha + 1}:${this.coluna}`);
+    throw new Error(`Caractere "${this._linhaAtual[this._coluna]}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
   }
 
-  tratarAtribuicao() {
-    let dpontos = this.linhaAtual[this.coluna];
+  _tratarAtribuicao() {
+    let dpontos = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
-    this.coluna += 1;
+    this._coluna += 1;
 
-    if (this.linhaAtual[this.coluna] === '=') {
-      dpontos += this.linhaAtual[this.coluna];
+    if (this._linhaAtual[this._coluna] === '=') {
+      dpontos += this._linhaAtual[this._coluna];
       token.lexema = dpontos;
       token.simbolo = 'satribuicao';
-      this.coluna += 1;
+      this._coluna += 1;
     } else {
       token.lexema = dpontos;
       token.simbolo = 'sdoispontos';
@@ -56,16 +57,16 @@ module.exports = class AnalisadorLexico {
     return token;
   }
 
-  tratarDigito() {
-    let num = this.linhaAtual[this.coluna];
+  _tratarDigito() {
+    let num = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
 
-    this.coluna += 1;
-    while (/[0-9]/.test(this.linhaAtual[this.coluna])) {
-      num += this.linhaAtual[this.coluna];
-      this.coluna += 1;
+    this._coluna += 1;
+    while (/[0-9]/.test(this._linhaAtual[this._coluna])) {
+      num += this._linhaAtual[this._coluna];
+      this._coluna += 1;
     }
 
     token.lexema = num;
@@ -73,17 +74,17 @@ module.exports = class AnalisadorLexico {
     return token;
   }
 
-  tratarIdentificadorPalavraReservada() {
-    let id = this.linhaAtual[this.coluna];
+  _tratarIdentificadorPalavraReservada() {
+    let id = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
 
-    this.coluna += 1;
+    this._coluna += 1;
 
-    while (this.linhaAtual[this.coluna] && /[_a-zA-Z0-9]/.test(this.linhaAtual[this.coluna])) {
-      id += this.linhaAtual[this.coluna];
-      this.coluna += 1;
+    while (this._linhaAtual[this._coluna] && /[_a-zA-Z0-9]/.test(this._linhaAtual[this._coluna])) {
+      id += this._linhaAtual[this._coluna];
+      this._coluna += 1;
     }
 
     token.lexema = id;
@@ -91,40 +92,40 @@ module.exports = class AnalisadorLexico {
     return token;
   }
 
-  tratarOperadorAritmetico() {
-    const opAritmetico = this.linhaAtual[this.coluna];
+  _tratarOperadorAritmetico() {
+    const opAritmetico = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
-    this.coluna += 1;
+    this._coluna += 1;
 
     token.lexema = opAritmetico;
     token.simbolo = listaSimbolos[opAritmetico];
     return token;
   }
 
-  tratarOperadorRelacional() {
-    let opRelacional = this.linhaAtual[this.coluna];
+  _tratarOperadorRelacional() {
+    let opRelacional = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
-    this.coluna += 1;
+    this._coluna += 1;
 
     if (opRelacional === '!') {
-      if (this.linhaAtual[this.coluna] === '=') {
-        opRelacional += this.linhaAtual[this.coluna];
+      if (this._linhaAtual[this._coluna] === '=') {
+        opRelacional += this._linhaAtual[this._coluna];
         token.lexema = opRelacional;
         token.simbolo = listaSimbolos[opRelacional];
-        this.coluna += 1;
+        this._coluna += 1;
         return token;
       }
-      throw new Error(`Caractere "${opRelacional}" nao reconhecido:${this.linha + 1}:${this.coluna}`);
+      throw new Error(`Caractere "${opRelacional}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
     } if (opRelacional === '>' || opRelacional === '<') {
-      if (this.linhaAtual[this.coluna] === '=') {
-        opRelacional += this.linhaAtual[this.coluna];
+      if (this._linhaAtual[this._coluna] === '=') {
+        opRelacional += this._linhaAtual[this._coluna];
         token.lexema = opRelacional;
         token.simbolo = listaSimbolos[opRelacional];
-        this.coluna += 1;
+        this._coluna += 1;
         return token;
       }
       token.lexema = opRelacional;
@@ -133,88 +134,88 @@ module.exports = class AnalisadorLexico {
     } if (opRelacional === '=') {
       token.lexema = opRelacional;
       token.simbolo = listaSimbolos[opRelacional];
-      this.coluna += 1;
+      this._coluna += 1;
       return token;
     }
     return true;
   }
 
-  tratarPontuacao() {
-    const pont = this.linhaAtual[this.coluna];
+  _tratarPontuacao() {
+    const pont = this._linhaAtual[this._coluna];
     const token = {
-      lexema: '', simbolo: '', linha: this.linha + 1, coluna: this.coluna + 1,
+      lexema: '', simbolo: '', linha: this._linha + 1, coluna: this._coluna + 1,
     };
-    this.coluna += 1;
+    this._coluna += 1;
     token.lexema = pont;
     token.simbolo = listaSimbolos[pont];
     return token;
   }
 
-  consumirComentarios() {
-    while (this.linhaAtual !== undefined && (this.linhaAtual[this.coluna] === '/' || this.linhaAtual[this.coluna] === ' ' || this.linhaAtual === '' || this.linhaAtual[this.coluna] === '' || this.linhaAtual[this.coluna] === '{')) {
-      this.consumirComentarioChave();
-      this.consumirComentarioBarra();
-      this.consumirEspacos();
+  _consumirComentarios() {
+    while (this._linhaAtual !== undefined && (this._linhaAtual[this._coluna] === '/' || this._linhaAtual[this._coluna] === ' ' || this._linhaAtual === '' || this._linhaAtual[this._coluna] === '' || this._linhaAtual[this._coluna] === '{')) {
+      this._consumirComentarioChave();
+      this._consumirComentarioBarra();
+      this._consumirEspacos();
     }
   }
 
-  consumirComentarioChave() {
-    while (this.linhaAtual && (this.linhaAtual[this.coluna] === '{' || this.linhaAtual[this.coluna] === ' ')) {
-      if (this.linhaAtual[this.coluna] === '{') {
-        const inicioComentario = { linha: this.linha + 1, coluna: this.coluna };
-        while (this.linhaAtual !== undefined && this.linhaAtual[this.coluna] !== '}') {
-          this.coluna += 1;
-          this.checarNovaLinha();
-          if (this.linhaAtual === undefined) {
+  _consumirComentarioChave() {
+    while (this._linhaAtual && (this._linhaAtual[this._coluna] === '{' || this._linhaAtual[this._coluna] === ' ')) {
+      if (this._linhaAtual[this._coluna] === '{') {
+        const inicioComentario = { linha: this._linha + 1, coluna: this._coluna };
+        while (this._linhaAtual !== undefined && this._linhaAtual[this._coluna] !== '}') {
+          this._coluna += 1;
+          this._checarNovaLinha();
+          if (this._linhaAtual === undefined) {
             throw new Error(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`);
           }
         }
-        this.coluna += 1;
+        this._coluna += 1;
       }
-      this.consumirEspacos();
+      this._consumirEspacos();
     }
   }
 
-  consumirComentarioBarra() {
-    if (this.linhaAtual && this.linhaAtual[this.coluna] === '/') {
-      this.coluna += 1;
-      if (this.linhaAtual && this.linhaAtual[this.coluna] === '*') {
-        const inicioComentario = { linha: this.linha + 1, coluna: this.coluna };
-        this.coluna += 1;
-        while (this.linhaAtual !== undefined && this.linhaAtual[this.coluna] !== '*') {
-          this.coluna += 1;
-          this.checarNovaLinha();
-          if (this.linhaAtual === undefined) {
+  _consumirComentarioBarra() {
+    if (this._linhaAtual && this._linhaAtual[this._coluna] === '/') {
+      this._coluna += 1;
+      if (this._linhaAtual && this._linhaAtual[this._coluna] === '*') {
+        const inicioComentario = { linha: this._linha + 1, coluna: this._coluna };
+        this._coluna += 1;
+        while (this._linhaAtual !== undefined && this._linhaAtual[this._coluna] !== '*') {
+          this._coluna += 1;
+          this._checarNovaLinha();
+          if (this._linhaAtual === undefined) {
             throw new Error(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`);
           }
-          if (this.linhaAtual[this.coluna] === '*') {
-            this.coluna += 1;
-            if (this.linhaAtual[this.coluna] === '/') {
-              this.coluna += 1;
+          if (this._linhaAtual[this._coluna] === '*') {
+            this._coluna += 1;
+            if (this._linhaAtual[this._coluna] === '/') {
+              this._coluna += 1;
               break;
             }
           }
         }
-        this.consumirEspacos();
+        this._consumirEspacos();
       } else {
-        throw new Error(`Caractere "${this.linhaAtual[this.coluna - 1]}" nao reconhecido:${this.linha + 1}:${this.coluna}`);
+        throw new Error(`Caractere "${this._linhaAtual[this._coluna - 1]}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
       }
     }
   }
 
-  checarNovaLinha() {
-    if (this.linhaAtual !== undefined && !this.linhaAtual[this.coluna]) {
-      this.linha += 1;
-      this.coluna = 0;
-      this.linhaAtual = this.codigo[this.linha];
+  _checarNovaLinha() {
+    if (this._linhaAtual !== undefined && !this._linhaAtual[this._coluna]) {
+      this._linha += 1;
+      this._coluna = 0;
+      this._linhaAtual = this._codigo[this._linha];
     }
   }
 
-  consumirEspacos() {
-    this.checarNovaLinha();
-    while (this.linhaAtual !== undefined && (this.linhaAtual[this.coluna] === ' ' || this.linhaAtual === '') && this.linhaAtual[this.coluna]) {
-      this.coluna += 1;
-      this.checarNovaLinha();
+  _consumirEspacos() {
+    this._checarNovaLinha();
+    while (this._linhaAtual !== undefined && (this._linhaAtual[this._coluna] === ' ' || this._linhaAtual === '') && this._linhaAtual[this._coluna]) {
+      this._coluna += 1;
+      this._checarNovaLinha();
     }
   }
 };

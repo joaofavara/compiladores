@@ -12,11 +12,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// const corsOptions = {
-//   origin: 'https://localhost:8080/',
-//   optionsSuccessStatus: 200, // For legacy browser support
-// };
-
 app.use(cors());
 app.use('/', serverStatic(path.join(__dirname, '../dist')));
 
@@ -45,7 +40,3 @@ app.post('/api/code', async (req, res, next) => {
 const port = process.env.PORT || 3000;
 app.listen(port);
 console.log(`server started ${port}`);
-
-// app.listen(3000, () => {
-//   console.log('App is running at 3000');
-// });

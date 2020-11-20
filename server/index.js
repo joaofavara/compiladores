@@ -10,5 +10,6 @@ module.exports = async (code) => {
 
   const aSintatico = new AnalisadorSintatico(tLexico, aSemantico, gCodigo);
 
-  aSintatico.analisarPrograma();
+  const file = aSintatico.analisarPrograma();
+  return file;
 };

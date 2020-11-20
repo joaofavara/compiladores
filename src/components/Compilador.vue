@@ -19,6 +19,7 @@ export default {
       textAreaValue: '',
       error: '',
       success: '',
+      fileName: '',
     };
   },
   computed: {
@@ -32,6 +33,7 @@ export default {
   methods: {
     async showCode(event) {
       const file = event.target.files[0];
+      [this.fileName] = file.name.split('.');
       const reader = new FileReader();
       await reader.readAsText(file);
 
@@ -56,9 +58,20 @@ export default {
           code: this.textAreaValue,
         },
       }).then((values) => {
-        console.log('Values: ', values);
         this.error = '';
         this.success = 'Passou liso!';
+
+        const blob = new Blob([values.data], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = blob;
+        link.setAttribute('download', `${this.fileName}_compilado.txt`);
+        document.body.appendChild(link);
+        link.click();
+
+        // const link = document.createElement('a');
+        // link.href = window.URL.createObjectURL(blob);
+        // link.download = `${this.fileName}_compilado.txt`;
+        // link.download();
       }).catch((err) => {
         this.error = err.response.data.error;
         this.success = '';

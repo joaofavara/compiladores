@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
+const serverStatic = require('serve-static');
+const path = require('path');
 const index = require('.');
 const handlerError = require('./error/handler-error');
 
@@ -40,6 +42,12 @@ app.post('/api/code', async (req, res, next) => {
   }
 }, handlerError);
 
-app.listen(3000, () => {
-  console.log('App is running at 3000');
-});
+app.use('/', serverStatic(path.join(__dirname, '/dist')));
+
+const port = process.env.PORT || 3000;
+app.listen(port);
+console.log(`server started ${port}`);
+
+// app.listen(3000, () => {
+//   console.log('App is running at 3000');
+// });

@@ -18,8 +18,7 @@ app.use(bodyParser.json());
 // };
 
 app.use(cors());
-
-app.use('/', serverStatic(path.join(__dirname, '/dist')));
+app.use('/', serverStatic(path.join(__dirname, '../dist')));
 
 app.post('/api/code', async (req, res, next) => {
   const { code } = req.body;

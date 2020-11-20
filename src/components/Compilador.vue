@@ -2,7 +2,7 @@
   <div class="compilador">
     <input type="file" @change="showCode" class='file'>
     <button @click="test"> RUN </button>
-    <textarea v-model="textAreaValue" />
+    <textarea v-model="textAreaValue" style="background-color: white;"/>
     <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
       {{ error || success }}
     </div>

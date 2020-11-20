@@ -13,12 +13,13 @@ const app = express();
 app.use(bodyParser.json());
 
 // const corsOptions = {
-//   // origin: 'https://localhost:8080/',
-//   origin: 'http://127.0.0.1:8080',
+//   origin: 'https://localhost:8080/',
 //   optionsSuccessStatus: 200, // For legacy browser support
 // };
 
 app.use(cors());
+
+app.use('/', serverStatic(path.join(__dirname, '/dist')));
 
 app.post('/api/code', async (req, res, next) => {
   const { code } = req.body;
@@ -41,8 +42,6 @@ app.post('/api/code', async (req, res, next) => {
     next(err);
   }
 }, handlerError);
-
-app.use('/', serverStatic(path.join(__dirname, '/dist')));
 
 const port = process.env.PORT || 3000;
 app.listen(port);

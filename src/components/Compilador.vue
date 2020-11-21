@@ -47,7 +47,7 @@ export default {
       axios({
         headers: { 'Access-Control-Allow-Origin': '*' },
         method: 'post',
-        url: 'http://127.0.0.1:3000/api/code',
+        url: 'https://compilador-teste.herokuapp.com/api/code',
         data: {
           code: this.textAreaValue,
         },

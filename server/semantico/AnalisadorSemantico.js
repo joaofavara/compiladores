@@ -13,7 +13,7 @@ module.exports = class AnalisadorSemantico {
     this._testeRetornoFunc = false;
     this._lista = [];
     this._pilha = [];
-    this.geradorDeCodigo = geradorCodigo;
+    this._geradorDeCodigo = geradorCodigo;
   }
 
   insereTabela(lexema, tipoLexema, rotulo = -1) {
@@ -226,7 +226,7 @@ module.exports = class AnalisadorSemantico {
 
   _confereGeracaoOperacao(operacao) {
     if (operacao !== '+u') {
-      this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
+      this._geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
     }
   }
 
@@ -289,12 +289,12 @@ module.exports = class AnalisadorSemantico {
         }
       } else {
         if (['funcaoBooleana', 'funcaoInteira'].includes(listaAux[i].tipo)) {
-          this.geradorDeCodigo.gerarInstrucao('CALL', listaAux[i].elemento);
-          this._geradorCodigo.gerarInstrucao('LDV', 0);
+          this._geradorDeCodigo.gerarInstrucao('CALL', listaAux[i].elemento);
+          this._geradorDeCodigo.gerarInstrucao('LDV', 0);
         } else if (listaAux[i].rotulo !== -1) {
-          this.geradorDeCodigo.gerarInstrucao('LDV', listaAux[i].rotulo);
+          this._geradorDeCodigo.gerarInstrucao('LDV', listaAux[i].rotulo);
         } else {
-          this.geradorDeCodigo.gerarInstrucao('LDC', listaAux[i].elemento);
+          this._geradorDeCodigo.gerarInstrucao('LDC', listaAux[i].elemento);
         }
       }
     }

@@ -275,7 +275,7 @@ module.exports = class AnalisadorSemantico {
             listaAux.splice(i - 1, 2);
             i -= 2;
           }
-        } else if (['>', '>=', '<', '<=', '=', '!='].includes(listaAux[i].elemento)) {
+        } else if (['>', '>=', '<', '<='].includes(listaAux[i].elemento)) {
           if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
@@ -285,6 +285,17 @@ module.exports = class AnalisadorSemantico {
             this._confereGeracaoOperacao(listaAux[i].elemento);
             listaAux.splice(i - 1, 2);
             i -= 2;
+          }
+        } else if (['=', '!='].includes(listaAux[i].elemento)) {
+          if ((['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && ['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) || (['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) && ['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo))) {
+            listaAux[i - 2].elemento = listaAux[i - 2].elemento + listaAux[i - 1].elemento + listaAux[i].elemento;
+            listaAux[i - 2].tipo = 'booleano';
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i - 1, 2);
+            i -= 2;
+          } else {
+            listaAux[0].tipo = 'erro';
+            break;
           }
         }
       } else {

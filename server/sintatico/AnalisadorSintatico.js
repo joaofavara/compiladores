@@ -131,7 +131,12 @@ module.exports = class AnalisadorSintatico {
   _analisarComandoSimples(nomeFuncao) {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       this._analisadorSemantico.confirmarRetorno(false);
-      this._analisarAtribChprocedimento(nomeFuncao);
+      if (this._analisadorSemantico.pesquisaDeclprocTabela(this._tokenAtual.lexema) || this._analisadorSemantico.pesquisaDeclvarTabela(this._tokenAtual.lexema) || (this._tokenAtual.lexema === nomeFuncao)) {
+        this._analisarAtribChprocedimento(nomeFuncao);
+      } else {
+        console.log('CARLOS');
+        throw new Error(`Procedimento ou variavel "${this._tokenAtual.lexema}" nao declarada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      }
     } else if (this._tokenAtual.simbolo === 'sse') {
       this._analisadorSemantico.confirmarRetorno(false);
       this._analisarSe(nomeFuncao);

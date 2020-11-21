@@ -1,5 +1,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-underscore-dangle */
+const fs = require('fs');
+
 module.exports = class GeradorDeCodigo {
   constructor() {
     this.labelSubrotina = 1;
@@ -50,5 +52,17 @@ module.exports = class GeradorDeCodigo {
     } else {
       this.instrucoes.push([instrucao]);
     }
+  }
+
+  gerarArquivo() {
+    let codigo = '';
+    this.instrucoes.forEach((element) => {
+      codigo += `${element}\n`;
+    });
+
+    console.log('codigo: ', codigo);
+
+    fs.writeFileSync('./codigo.txt', codigo);
+    return './codigo.txt';
   }
 };

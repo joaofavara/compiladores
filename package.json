@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "back": "nodemon --inspect ./server/app.js ",
+    "start": "node ./server/app.js ",
     "dev": "npm run electron:serve && npm run back",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -23,6 +23,7 @@
     "node": "^14.13.0",
     "sass": "^1.27.0",
     "sass-loader": "^10.0.3",
+    "serve-static": "^1.14.1",
     "vue": "^2.6.11",
     "vuex": "^3.4.0"
   },

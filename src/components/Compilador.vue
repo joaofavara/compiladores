@@ -19,6 +19,7 @@ export default {
       textAreaValue: '',
       error: '',
       success: '',
+      fileName: '',
     };
   },
   computed: {
@@ -32,6 +33,7 @@ export default {
   methods: {
     async showCode(event) {
       const file = event.target.files[0];
+      [this.fileName] = file.name.split('.');
       const reader = new FileReader();
       await reader.readAsText(file);
 
@@ -42,23 +44,23 @@ export default {
       this.error = '';
     },
     async test() {
-      // const file = e.target.files[0];
-      // const reader = new FileReader();
-      // await reader.readAsText(file);
-
-      // reader.onloadend = async () => {
-      //   this.textAreaValue = await reader.result;
-      // };
       axios({
+        headers: { 'Access-Control-Allow-Origin': '*' },
         method: 'post',
-        url: 'http://localhost:3000/api/code',
+        url: 'http://127.0.0.1:3000/api/code',
         data: {
           code: this.textAreaValue,
         },
       }).then((values) => {
-        console.log('Values: ', values);
         this.error = '';
         this.success = 'Passou liso!';
+
+        const blob = new Blob([values.data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.setAttribute('download', `${this.fileName}_compilado.txt`);
+        document.body.appendChild(link);
+        link.click();
       }).catch((err) => {
         this.error = err.response.data.error;
         this.success = '';

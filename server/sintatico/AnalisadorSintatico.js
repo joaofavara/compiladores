@@ -27,14 +27,10 @@ module.exports = class AnalisadorSintatico {
               this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', 1);
               this._geradorCodigo.gerarInstrucao('HLT');
 
-              this._geradorCodigo.instrucoes.forEach((element) => {
-                console.log(element);
-              });
-
               console.log('\n\nFim da execucao\n');
-            } else {
-              throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. O programa deve encerrar com ".":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+              return this._geradorCodigo.gerarArquivo();
             }
+            throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. O programa deve encerrar com ".":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
           } else {
             if (!this._tokenAtual) {
               throw new Error('Token "." esperado no fim do programa');

@@ -93,7 +93,6 @@ module.exports = class AnalisadorSintatico {
     if (!this._analisadorSemantico.pesquisaDeclprocTabela(this._tokenAnterior.lexema)) {
       throw new Error(`Procedimento "${this._tokenAnterior.lexema}" nao declarado:${this._tokenAnterior.linha}:${this._tokenAnterior.coluna} `);
     } else {
-      console.log(this._tokenAtual);
       this._geradorCodigo.gerarInstrucao('CALL', this._tokenAnterior.lexema);
     }
   }

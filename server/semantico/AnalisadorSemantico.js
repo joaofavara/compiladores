@@ -225,7 +225,9 @@ module.exports = class AnalisadorSemantico {
   }
 
   _confereGeracaoOperacao(operacao) {
-    this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
+    if (operacao !== '+u') {
+      this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
+    }
   }
 
   _conferirTipo() {

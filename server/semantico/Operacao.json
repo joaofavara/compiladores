@@ -11,5 +11,6 @@
     "div": "DIVI",
     "e": "AND",
     "ou": "OR",
-    "nao": "NOT"
+    "nao": "NOT",
+    "-u": "INV"
 }

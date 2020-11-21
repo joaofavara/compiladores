@@ -12,7 +12,7 @@ module.exports = class GeradorDeCodigo {
   }
 
   gerarJump(jump, label) {
-    this.instrucoes.push([jump, label]);
+    this.instrucoes.push([`${jump} ${label}`]);
   }
 
   gerarLabel(tipoLabel) {
@@ -33,24 +33,24 @@ module.exports = class GeradorDeCodigo {
   }
 
   inserirLabel(label) {
-    this.instrucoes.push([label, 'NULL']);
+    this.instrucoes.push([`${label} NULL`]);
   }
 
   gerarAlocacaoDesalocacao(instrucao, atributo1) {
     if (instrucao === 'ALLOC') {
-      this.instrucoes.push([instrucao, this.quantidadeAlocada, atributo1]);
+      this.instrucoes.push([`${instrucao} ${this.quantidadeAlocada},${atributo1}`]);
       this.quantidadeAlocada += atributo1;
     } else if (instrucao === 'DALLOC') {
-      this.instrucoes.push([instrucao, this.quantidadeAlocada - atributo1, atributo1]);
+      this.instrucoes.push([`${instrucao} ${this.quantidadeAlocada - atributo1},${atributo1}`]);
       this.quantidadeAlocada -= atributo1;
     }
   }
 
   gerarInstrucao(instrucao, atributo1 = undefined) {
     if (atributo1 !== undefined) {
-      this.instrucoes.push([instrucao, atributo1]);
+      this.instrucoes.push([`${instrucao} ${atributo1}`]);
     } else {
-      this.instrucoes.push([instrucao]);
+      this.instrucoes.push([`${instrucao}`]);
     }
   }
 

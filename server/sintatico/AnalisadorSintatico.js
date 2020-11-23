@@ -394,11 +394,20 @@ module.exports = class AnalisadorSintatico {
         this._analisarComandoSimples(nomeFuncao);
         const labelAux1 = this._geradorCodigo.gerarLabel('SESENAO');
         if (this._tokenAtual.simbolo === 'ssenao') {
+          const retornoAux = this._analisadorSemantico._testeRetornoFunc;
           this._geradorCodigo.gerarJump('JMP', labelAux1);
           this._geradorCodigo.inserirLabel(labelAux);
           this._lertoken();
           this._analisarComandoSimples(nomeFuncao);
+          if (nomeFuncao && retornoAux) {
+            this._analisadorSemantico.confirmarRetorno(true);
+          } else {
+            this._analisadorSemantico.confirmarRetorno(false);
+          }
         } else {
+          if (nomeFuncao) {
+            this._analisadorSemantico.confirmarRetorno(false);
+          }
           this._geradorCodigo.inserirLabel(labelAux);
         }
         this._geradorCodigo.inserirLabel(labelAux1);

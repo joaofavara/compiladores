@@ -82,6 +82,8 @@ module.exports = class AnalisadorSintatico {
     if (simbolo.lexema === nomeFuncao) {
       this._geradorCodigo.gerarInstrucao('STR', 0);
       this._analisadorSemantico.confirmarRetorno(true);
+    } else {
+      this._analisadorSemantico.confirmarRetorno(false);
     }
   }
 
@@ -399,9 +401,7 @@ module.exports = class AnalisadorSintatico {
           this._geradorCodigo.inserirLabel(labelAux);
           this._lertoken();
           this._analisarComandoSimples(nomeFuncao);
-          if (nomeFuncao && retornoAux) {
-            this._analisadorSemantico.confirmarRetorno(true);
-          } else {
+          if (!(nomeFuncao && retornoAux) && this._analisadorSemantico._testeRetornoFunc) {
             this._analisadorSemantico.confirmarRetorno(false);
           }
         } else {

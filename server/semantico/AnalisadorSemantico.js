@@ -10,10 +10,10 @@ module.exports = class AnalisadorSemantico {
   constructor(geradorCodigo) {
     this._tabelaDeSimbolos = [];
     this._nivel = 0;
-    this._testeRetornoFunc = false;
+    this._testeRetornoFunc = [];
     this._lista = [];
     this._pilha = [];
-    this.geradorDeCodigo = geradorCodigo;
+    this._geradorDeCodigo = geradorCodigo;
   }
 
   insereTabela(lexema, tipoLexema, rotulo = -1) {
@@ -226,7 +226,7 @@ module.exports = class AnalisadorSemantico {
 
   _confereGeracaoOperacao(operacao) {
     if (operacao !== '+u') {
-      this.geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
+      this._geradorDeCodigo.gerarInstrucao(operacoes[operacao]);
     }
   }
 
@@ -275,7 +275,7 @@ module.exports = class AnalisadorSemantico {
             listaAux.splice(i - 1, 2);
             i -= 2;
           }
-        } else if (['>', '>=', '<', '<=', '=', '!='].includes(listaAux[i].elemento)) {
+        } else if (['>', '>=', '<', '<='].includes(listaAux[i].elemento)) {
           if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
@@ -286,15 +286,26 @@ module.exports = class AnalisadorSemantico {
             listaAux.splice(i - 1, 2);
             i -= 2;
           }
+        } else if (['=', '!='].includes(listaAux[i].elemento)) {
+          if ((['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && ['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) || (['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) && ['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo))) {
+            listaAux[i - 2].elemento = listaAux[i - 2].elemento + listaAux[i - 1].elemento + listaAux[i].elemento;
+            listaAux[i - 2].tipo = 'booleano';
+            this._confereGeracaoOperacao(listaAux[i].elemento);
+            listaAux.splice(i - 1, 2);
+            i -= 2;
+          } else {
+            listaAux[0].tipo = 'erro';
+            break;
+          }
         }
       } else {
         if (['funcaoBooleana', 'funcaoInteira'].includes(listaAux[i].tipo)) {
-          this.geradorDeCodigo.gerarInstrucao('CALL', listaAux[i].elemento);
-          this._geradorCodigo.gerarInstrucao('LDV', 0);
+          this._geradorDeCodigo.gerarInstrucao('CALL', listaAux[i].elemento);
+          this._geradorDeCodigo.gerarInstrucao('LDV', 0);
         } else if (listaAux[i].rotulo !== -1) {
-          this.geradorDeCodigo.gerarInstrucao('LDV', listaAux[i].rotulo);
+          this._geradorDeCodigo.gerarInstrucao('LDV', listaAux[i].rotulo);
         } else {
-          this.geradorDeCodigo.gerarInstrucao('LDC', listaAux[i].elemento);
+          this._geradorDeCodigo.gerarInstrucao('LDC', listaAux[i].elemento);
         }
       }
     }

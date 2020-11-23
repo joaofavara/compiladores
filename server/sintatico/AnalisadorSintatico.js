@@ -82,6 +82,8 @@ module.exports = class AnalisadorSintatico {
     if (simbolo.lexema === nomeFuncao) {
       this._geradorCodigo.gerarInstrucao('STR', 0);
       this._analisadorSemantico.confirmarRetorno(true);
+    } else {
+      this._analisadorSemantico.confirmarRetorno(false);
     }
   }
 
@@ -131,7 +133,12 @@ module.exports = class AnalisadorSintatico {
   _analisarComandoSimples(nomeFuncao) {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       this._analisadorSemantico.confirmarRetorno(false);
-      this._analisarAtribChprocedimento(nomeFuncao);
+      if (this._analisadorSemantico.pesquisaDeclprocTabela(this._tokenAtual.lexema) || this._analisadorSemantico.pesquisaDeclvarTabela(this._tokenAtual.lexema) || (this._tokenAtual.lexema === nomeFuncao)) {
+        this._analisarAtribChprocedimento(nomeFuncao);
+      } else {
+        console.log('CARLOS');
+        throw new Error(`Procedimento ou variavel "${this._tokenAtual.lexema}" nao declarada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      }
     } else if (this._tokenAtual.simbolo === 'sse') {
       this._analisadorSemantico.confirmarRetorno(false);
       this._analisarSe(nomeFuncao);
@@ -389,11 +396,18 @@ module.exports = class AnalisadorSintatico {
         this._analisarComandoSimples(nomeFuncao);
         const labelAux1 = this._geradorCodigo.gerarLabel('SESENAO');
         if (this._tokenAtual.simbolo === 'ssenao') {
+          const retornoAux = this._analisadorSemantico._testeRetornoFunc;
           this._geradorCodigo.gerarJump('JMP', labelAux1);
           this._geradorCodigo.inserirLabel(labelAux);
           this._lertoken();
           this._analisarComandoSimples(nomeFuncao);
+          if (!(nomeFuncao && retornoAux) && this._analisadorSemantico._testeRetornoFunc) {
+            this._analisadorSemantico.confirmarRetorno(false);
+          }
         } else {
+          if (nomeFuncao) {
+            this._analisadorSemantico.confirmarRetorno(false);
+          }
           this._geradorCodigo.inserirLabel(labelAux);
         }
         this._geradorCodigo.inserirLabel(labelAux1);

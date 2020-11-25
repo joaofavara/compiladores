@@ -47,8 +47,18 @@ module.exports = class GeradorDeCodigo {
   }
 
   gerarInstrucao(instrucao, atributo1 = undefined) {
+    let atributo;
+
+    if (atributo1 === 'verdadeiro') {
+      atributo = 1;
+    } else if (atributo1 === 'falso') {
+      atributo = 0;
+    } else {
+      atributo = atributo1;
+    }
+
     if (atributo1 !== undefined) {
-      this.instrucoes.push([`${instrucao} ${atributo1}`]);
+      this.instrucoes.push([`${instrucao} ${atributo}`]);
     } else {
       this.instrucoes.push([`${instrucao}`]);
     }
@@ -56,11 +66,13 @@ module.exports = class GeradorDeCodigo {
 
   gerarArquivo() {
     let codigo = '';
-    this.instrucoes.forEach((element) => {
-      codigo += `${element}\n`;
+    this.instrucoes.forEach((element, index, array) => {
+      if (array.length - 1 === index) {
+        codigo += `${element}`;
+      } else {
+        codigo += `${element}\n`;
+      }
     });
-
-    console.log('codigo: ', codigo);
 
     fs.writeFileSync('./codigo.txt', codigo);
     return './codigo.txt';

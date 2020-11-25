@@ -26,8 +26,7 @@ module.exports = class AnalisadorSintatico {
             if (this._tokenAtual === undefined) {
               this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', 1);
               this._geradorCodigo.gerarInstrucao('HLT');
-
-              console.log('\n\nFim da execucao\n');
+              console.log('\nFim da execucao\n');
               return this._geradorCodigo.gerarArquivo();
             }
             throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. O programa deve encerrar com ".":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
@@ -136,7 +135,6 @@ module.exports = class AnalisadorSintatico {
       if (this._analisadorSemantico.pesquisaDeclprocTabela(this._tokenAtual.lexema) || this._analisadorSemantico.pesquisaDeclvarTabela(this._tokenAtual.lexema) || (this._tokenAtual.lexema === nomeFuncao)) {
         this._analisarAtribChprocedimento(nomeFuncao);
       } else {
-        console.log('CARLOS');
         throw new Error(`Procedimento ou variavel "${this._tokenAtual.lexema}" nao declarada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     } else if (this._tokenAtual.simbolo === 'sse') {
@@ -468,12 +466,13 @@ module.exports = class AnalisadorSintatico {
       }
       if (this._tokenAtual.simbolo === 'spontovirgula') {
         this._lertoken();
+        this._geradorCodigo.gerarInstrucao('RETURN');
       } else {
         throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     }
+
     if (flag === 1) {
-      this._geradorCodigo.gerarInstrucao('RETURN');
       this._geradorCodigo.inserirLabel(labelAux);
     }
   }

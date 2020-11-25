@@ -245,7 +245,7 @@ module.exports = class AnalisadorSemantico {
             listaAux.splice(i, 1);
             i -= 1;
           }
-        } else if (listaAux[i].elemento === 'not') {
+        } else if (listaAux[i].elemento === 'nao') {
           if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo)) {
             listaAux[0].tipo = 'erro';
             break;

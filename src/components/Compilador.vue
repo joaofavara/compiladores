@@ -58,7 +58,7 @@ export default {
         const blob = new Blob([values.data]);
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
-        link.setAttribute('download', `${this.fileName}_compilado.txt`);
+        link.setAttribute('download', `${this.fileName || 'Codigo'}_compilado.txt`);
         document.body.appendChild(link);
         link.click();
       }).catch((err) => {

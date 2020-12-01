@@ -256,7 +256,7 @@ module.exports = class AnalisadorSemantico {
             i -= 1;
           }
         } else if (listaAux[i].elemento === 'e' || listaAux[i].elemento === 'ou') {
-          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) && !['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo)) {
+          if (!['funcaoBooleana', 'booleano'].includes(listaAux[i - 1].tipo) || !['funcaoBooleana', 'booleano'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -266,7 +266,7 @@ module.exports = class AnalisadorSemantico {
             i -= 2;
           }
         } else if (['+', '-', '*', 'div'].includes(listaAux[i].elemento)) {
-          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) || !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {
@@ -276,7 +276,7 @@ module.exports = class AnalisadorSemantico {
             i -= 2;
           }
         } else if (['>', '>=', '<', '<='].includes(listaAux[i].elemento)) {
-          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) && !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
+          if (!['funcaoInteira', 'inteiro'].includes(listaAux[i - 1].tipo) || !['funcaoInteira', 'inteiro'].includes(listaAux[i - 2].tipo)) {
             listaAux[0].tipo = 'erro';
             break;
           } else {

@@ -92,7 +92,7 @@ export default {
       padding-left: 35px;
       padding-top: 10px;
       border-color:#ccc;
-      line-height: 125%;
+      line-height: 120%;
     }
 
     .success{

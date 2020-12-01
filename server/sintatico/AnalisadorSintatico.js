@@ -20,7 +20,7 @@ module.exports = class AnalisadorSintatico {
         if (this._tokenAtual.simbolo === 'spontovirgula') {
           this._geradorCodigo.gerarInstrucao('START');
           this._geradorCodigo.gerarAlocacaoDesalocacao('ALLOC', 1);
-          this._analisarBloco();
+          this._analisarBloco(null, true);
           if (this._tokenAtual && this._tokenAtual.simbolo === 'sponto') {
             this._lertoken();
             if (this._tokenAtual === undefined) {
@@ -98,17 +98,17 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarBloco(nomeFuncao = null) {
+  _analisarBloco(nomeFuncao = null, rotina = false) {
     this._lertoken();
     const quantidadeAlocada = this._analisarEtVariaveis();
     this._analisarSubrotinas();
-    this._analisarComandos(nomeFuncao);
+    this._analisarComandos(nomeFuncao, rotina);
     if (quantidadeAlocada > 0) {
       this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', quantidadeAlocada);
     }
   }
 
-  _analisarComandos(nomeFuncao) {
+  _analisarComandos(nomeFuncao, rotina = false) {
     if (this._tokenAtual.simbolo === 'sinicio') {
       this._analisadorSemantico.confirmarRetorno(false);
       this._lertoken();
@@ -124,8 +124,10 @@ module.exports = class AnalisadorSintatico {
         }
       }
       this._lertoken();
+    } else if (rotina) {
+      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "inicio" ou declaracao (variavel, procedimento ou funcao):${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
     } else {
-      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "inicio":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "inicio" ou comando:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
     }
   }
 
@@ -169,7 +171,7 @@ module.exports = class AnalisadorSintatico {
             this._analisadorSemantico.colocaTipoFuncao(this._tokenAtual.simbolo);
             this._lertoken();
             if (this._tokenAtual.simbolo === 'spontovirgula') {
-              this._analisarBloco(nomeFuncao);
+              this._analisarBloco(nomeFuncao, true);
               if (!this._analisadorSemantico._testeRetornoFunc) {
                 throw new Error(`Não existe retorno alcancavel para a funcao: "${nomeFuncao}": ${this._tokenAtual.linha} ${this._tokenAtual.coluna}"`);
               }
@@ -198,7 +200,7 @@ module.exports = class AnalisadorSintatico {
         this._geradorCodigo.inserirLabel(this._tokenAtual.lexema);
         this._lertoken();
         if (this._tokenAtual.simbolo === 'spontovirgula') {
-          this._analisarBloco();
+          this._analisarBloco(null, true);
         } else {
           throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
         }
@@ -344,13 +346,13 @@ module.exports = class AnalisadorSintatico {
         this._analisadorSemantico.colocaElementoPilha(this._tokenAtual.lexema);
         this._lertoken();
       } else {
-        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ")":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Parenteses sem fechamento:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
     } else if (this._tokenAtual.lexema === 'verdadeiro' || this._tokenAtual.lexema === 'falso') {
       this._analisadorSemantico.colocaElementoLista(this._tokenAtual.lexema);
       this._lertoken();
     } else {
-      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "(":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+      throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "(", expressao ou valor:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
     }
   }
 
@@ -428,17 +430,17 @@ module.exports = class AnalisadorSintatico {
             if (this._tokenAtual.simbolo === 'svirgula') {
               this._lertoken();
               if (this._tokenAtual.simbolo === 'sdoispontos') {
-                throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ":":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+                throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se identificador nao reservado de variavel:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
               }
             }
           } else {
-            throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ":":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+            throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ":" ou ",":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
           }
         } else {
           throw new Error(`Redeclaracao de variavel "${this._tokenAtual.lexema}":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
         }
       } else {
-        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se uma palavra nao reservada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
+        throw new Error(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se identificador nao reservado de variavel:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `);
       }
       cont += 1;
     } while (this._tokenAtual.simbolo !== 'sdoispontos');

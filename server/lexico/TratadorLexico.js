@@ -134,7 +134,6 @@ module.exports = class AnalisadorLexico {
     } if (opRelacional === '=') {
       token.lexema = opRelacional;
       token.simbolo = listaSimbolos[opRelacional];
-      this._coluna += 1;
       return token;
     }
     return true;
@@ -213,6 +212,7 @@ module.exports = class AnalisadorLexico {
 
   _consumirEspacos() {
     this._checarNovaLinha();
+
     while (this._linhaAtual !== undefined && (this._linhaAtual[this._coluna] === ' ' || this._linhaAtual === '') && this._linhaAtual[this._coluna]) {
       this._coluna += 1;
       this._checarNovaLinha();

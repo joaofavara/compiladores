@@ -217,7 +217,7 @@ module.exports = class AnalisadorSemantico {
 
   _desempilhaElementosPilha(prioridadeAtual) {
     let ultimoElemento = this._pilha[this._pilha.length - 1];
-    while (ultimoElemento && ultimoElemento.operador !== '(' && ultimoElemento.prioridade >= prioridadeAtual) {
+    while (ultimoElemento && ultimoElemento.operador !== '(' && ultimoElemento.prioridade > prioridadeAtual) {
       this._pilha.pop();
       this.colocaElementoLista(ultimoElemento.operador);
       ultimoElemento = this._pilha[this._pilha.length - 1];

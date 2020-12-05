@@ -82,6 +82,7 @@ module.exports = class AnalisadorSintatico {
 
     if (simbolo.lexema === nomeFuncao) {
       this._geradorCodigo.gerarInstrucao('STR', 0);
+      this._geradorCodigo.gerarInstrucao('RETURN');
       this._analisadorSemantico.confirmarRetorno(true);
     } else {
       this._analisadorSemantico.confirmarRetorno(false);
@@ -230,6 +231,7 @@ module.exports = class AnalisadorSintatico {
       if (this._tokenAtual.simbolo === 'sfaca') {
         this._lertoken();
         this._analisarComandoSimples(nomeFuncao);
+        this._analisadorSemantico.confirmarRetorno(false);
       } else {
         throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "faca":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
       }
@@ -455,8 +457,12 @@ module.exports = class AnalisadorSintatico {
   _analisarSubrotinas() {
     let labelAux;
     let flag = 0;
+    let flagProcedimento = 0;
 
     if (this._tokenAtual.simbolo === 'sprocedimento' || this._tokenAtual.simbolo === 'sfuncao') {
+      if (this._tokenAtual.simbolo === 'sprocedimento') {
+        flagProcedimento = 1;
+      }
       labelAux = this._geradorCodigo.gerarLabel('SUBROTINA');
       this._geradorCodigo.gerarJump('JMP', labelAux);
       flag = 1;
@@ -470,7 +476,9 @@ module.exports = class AnalisadorSintatico {
       }
       if (this._tokenAtual.simbolo === 'spontovirgula') {
         this._lertoken();
-        this._geradorCodigo.gerarInstrucao('RETURN');
+        if (flagProcedimento === 1) {
+          this._geradorCodigo.gerarInstrucao('RETURN');
+        }
       } else {
         throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
       }

@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len > </-->
 <template>
   <div align="center" class="compilador">
     <div style="display: inline-block">
@@ -5,7 +6,7 @@
       <input type="file" @change="showCode" class='file'>
     </div>
     <div style="display: inline-block">
-      <textarea id="atext" v-model="textAreaValue" style="background-color: white;"/>
+      <textarea spellcheck="false" id="atext" v-model="textAreaValue" style="background-color: white;"/>
       <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
         {{ error || success }}
       </div>

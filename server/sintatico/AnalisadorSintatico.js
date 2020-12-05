@@ -317,17 +317,13 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarChamadaFuncao() {
-    this._lertoken();
-  }
-
   _analisarFator() {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       const simboloEncontrado = this._analisadorSemantico.pesquisaFator(this._tokenAtual.lexema);
       if (!(Object.keys(simboloEncontrado).length === 0 && simboloEncontrado.constructor === Object)) {
         if (this._analisadorSemantico.confereTipoFuncao(simboloEncontrado)) {
           this._analisadorSemantico.colocaElementoLista(this._tokenAtual.lexema, simboloEncontrado.tipoLexema);
-          this._analisarChamadaFuncao();
+          this._analisarChamadaDeFuncao();
         } else {
           this._analisadorSemantico.colocaElementoLista(this._tokenAtual.lexema, simboloEncontrado.tipoLexema, simboloEncontrado.rotulo);
           this._lertoken();

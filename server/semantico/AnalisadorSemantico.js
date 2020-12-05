@@ -10,7 +10,7 @@ module.exports = class AnalisadorSemantico {
   constructor(geradorCodigo) {
     this._tabelaDeSimbolos = [];
     this._nivel = 0;
-    this._testeRetornoFunc = [];
+    this._testeRetornoFunc = false;
     this._lista = [];
     this._pilha = [];
     this._geradorDeCodigo = geradorCodigo;

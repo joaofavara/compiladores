@@ -1,10 +1,15 @@
+<!-- eslint-disable max-len > </-->
 <template>
-  <div class="compilador">
-    <input type="file" @change="showCode" class='file'>
-    <button @click="test"> RUN </button>
-    <textarea v-model="textAreaValue" style="background-color: white;"/>
-    <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
-      {{ error || success }}
+  <div align="center" class="compilador">
+    <div style="display: inline-block">
+      <button @click="test"> Compilar </button>
+      <input type="file" @change="showCode" class='file'>
+    </div>
+    <div style="display: inline-block">
+      <textarea spellcheck="false" id="atext" v-model="textAreaValue" style="background-color: white;"/>
+      <div v-if="error || success" :class="{ success: isSuccess, error: isError }">
+        {{ error || success }}
+      </div>
     </div>
   </div>
 </template>
@@ -62,9 +67,27 @@ export default {
         document.body.appendChild(link);
         link.click();
       }).catch((err) => {
+        const tarea = document.getElementById('atext');
+        this.selectTextareaLine(tarea, err.response.data.line);
+
         this.error = err.response.data.error;
         this.success = '';
       });
+    },
+    selectTextareaLine(tarea, lineNum) {
+      let text = tarea.value;
+      let cont = 0;
+
+      text = text.split('\n');
+
+      for (let i = 0; i <= lineNum - 1; i += 1) {
+        if (i === lineNum - 1) {
+          tarea.focus();
+          tarea.setSelectionRange(cont, cont + text[i].length);
+          break;
+        }
+        cont = cont + text[i].length + 1;
+      }
     },
   },
 };
@@ -78,12 +101,13 @@ export default {
 
     button {
       width: fit-content;
-      height: 35px;
+      height: 21px;
+      margin: 10px;
     }
 
     textarea{
-      margin: 10px;
-      width: 500px;
+      margin: 5px;
+      width: 900px;
       height: 500px;
       background: url(http://i.imgur.com/2cOaJ.png);
       background-attachment: local;

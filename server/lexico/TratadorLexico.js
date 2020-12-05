@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const listaSimbolos = require('./Token.json');
+const Erro = require('../error/GeradorErro');
 
 module.exports = class AnalisadorLexico {
   constructor(codigoPrograma) {
@@ -35,7 +36,7 @@ module.exports = class AnalisadorLexico {
       return this._tratarPontuacao();
     }
 
-    throw new Error(`Caractere "${this._linhaAtual[this._coluna]}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
+    throw new Erro(`Caractere "${this._linhaAtual[this._coluna]}" nao reconhecido:${this._linha + 1}:${this._coluna}`, this._linha + 1);
   }
 
   _tratarAtribuicao() {
@@ -119,7 +120,7 @@ module.exports = class AnalisadorLexico {
         this._coluna += 1;
         return token;
       }
-      throw new Error(`Caractere "${opRelacional}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
+      throw new Erro(`Caractere "${opRelacional}" nao reconhecido:${this._linha + 1}:${this._coluna}`, this._linha + 1);
     } if (opRelacional === '>' || opRelacional === '<') {
       if (this._linhaAtual[this._coluna] === '=') {
         opRelacional += this._linhaAtual[this._coluna];
@@ -166,7 +167,7 @@ module.exports = class AnalisadorLexico {
           this._coluna += 1;
           this._checarNovaLinha();
           if (this._linhaAtual === undefined) {
-            throw new Error(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`);
+            throw new Erro(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`, this._linha + 1);
           }
         }
         this._coluna += 1;
@@ -185,7 +186,7 @@ module.exports = class AnalisadorLexico {
           this._coluna += 1;
           this._checarNovaLinha();
           if (this._linhaAtual === undefined) {
-            throw new Error(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`);
+            throw new Erro(`Comentario nunca encerrado:${inicioComentario.linha}:${inicioComentario.coluna}`, this._linha + 1);
           }
           if (this._linhaAtual[this._coluna] === '*') {
             this._coluna += 1;
@@ -197,7 +198,7 @@ module.exports = class AnalisadorLexico {
         }
         this._consumirEspacos();
       } else {
-        throw new Error(`Caractere "${this._linhaAtual[this._coluna - 1]}" nao reconhecido:${this._linha + 1}:${this._coluna}`);
+        throw new Erro(`Caractere "${this._linhaAtual[this._coluna - 1]}" nao reconhecido:${this._linha + 1}:${this._coluna}`, this._linha + 1);
       }
     }
   }

@@ -10,7 +10,7 @@ module.exports = class AnalisadorSintatico {
     this._geradorCodigo = geradorDeCodigo;
     this._tokenAnterior = undefined;
     this._tokenAtual = undefined;
-    this.flag = 1;
+    this._flagdesalocacao = 1;
   }
 
   analisarPrograma() {
@@ -85,7 +85,7 @@ module.exports = class AnalisadorSintatico {
       this._geradorCodigo.gerarInstrucao('STR', 0);
       if (quantidadeAlocada > 0) {
         this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', quantidadeAlocada);
-        this.flag = 0;
+        this._flagdesalocacao = 0;
       }
       this._geradorCodigo.gerarInstrucao('RETURN');
       this._analisadorSemantico.confirmarRetorno(true);
@@ -108,13 +108,19 @@ module.exports = class AnalisadorSintatico {
 
   _analisarBloco(nomeFuncao = null, rotina = false) {
     this._lertoken();
-    this.flag = 1;
+    this._flagdesalocacao = 1;
     const quantidadeAlocada = this._analisarEtVariaveis();
+    if (quantidadeAlocada > 0) {
+      this._geradorCodigo.gerarAlocacaoDesalocacao('ALLOC', quantidadeAlocada);
+    }
     this._analisarSubrotinas(quantidadeAlocada);
     this._analisarComandos(nomeFuncao, rotina, quantidadeAlocada);
-    if (quantidadeAlocada > 0 && this.flag === 1) {
+    if (quantidadeAlocada > 0 && this._flagdesalocacao === 1) {
       this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', quantidadeAlocada);
     }
+
+    this._geradorCodigo.desalocarMemoria(quantidadeAlocada);
+    this._flagdesalocacao = 1;
   }
 
   _analisarComandos(nomeFuncao, rotina = false, quantidadeAlocada = 0) {
@@ -210,6 +216,7 @@ module.exports = class AnalisadorSintatico {
         this._lertoken();
         if (this._tokenAtual.simbolo === 'spontovirgula') {
           this._analisarBloco(null, true);
+          this._geradorCodigo.gerarInstrucao('RETURN');
         } else {
           throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
         }
@@ -452,19 +459,14 @@ module.exports = class AnalisadorSintatico {
     } while (this._tokenAtual.simbolo !== 'sdoispontos');
     this._lertoken();
     this._analisarTipo();
-    this._geradorCodigo.gerarAlocacaoDesalocacao('ALLOC', cont);
     return cont;
   }
 
   _analisarSubrotinas(quantidadeAlocada = 0) {
     let labelAux;
     let flag = 0;
-    let flagProcedimento = 0;
 
     if (this._tokenAtual.simbolo === 'sprocedimento' || this._tokenAtual.simbolo === 'sfuncao') {
-      if (this._tokenAtual.simbolo === 'sprocedimento') {
-        flagProcedimento = 1;
-      }
       labelAux = this._geradorCodigo.gerarLabel('SUBROTINA');
       this._geradorCodigo.gerarJump('JMP', labelAux);
       flag = 1;
@@ -478,9 +480,6 @@ module.exports = class AnalisadorSintatico {
       }
       if (this._tokenAtual.simbolo === 'spontovirgula') {
         this._lertoken();
-        if (flagProcedimento === 1) {
-          this._geradorCodigo.gerarInstrucao('RETURN');
-        }
       } else {
         throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
       }

@@ -294,7 +294,7 @@ module.exports = class AnalisadorSintatico {
       this._lertoken();
       if (this._tokenAtual.simbolo === 'sidentificador') {
         while (this._tokenAtual.simbolo === 'sidentificador') {
-          quantidadeAlocada += this._analisarVariaveis();
+          quantidadeAlocada += this._analisarVariaveis(quantidadeAlocada);
           if (this._tokenAtual.simbolo === 'spontovirgula') {
             this._lertoken();
           } else {
@@ -432,8 +432,8 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarVariaveis() {
-    let cont = 0;
+  _analisarVariaveis(contadorVariavel) {
+    let cont = contadorVariavel;
     do {
       if (this._tokenAtual.simbolo === 'sidentificador') {
         if (!this._analisadorSemantico.pesquisaDuplicVarTabela(this._tokenAtual.lexema)) {

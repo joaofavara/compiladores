@@ -45,6 +45,10 @@ module.exports = class GeradorDeCodigo {
     }
   }
 
+  desalocarMemoria(quantidade) {
+    this.quantidadeAlocada -= quantidade;
+  }
+
   gerarInstrucao(instrucao, atributo1 = undefined) {
     let atributo;
 

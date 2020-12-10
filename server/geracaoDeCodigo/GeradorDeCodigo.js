@@ -42,8 +42,11 @@ module.exports = class GeradorDeCodigo {
       this.quantidadeAlocada += atributo1;
     } else if (instrucao === 'DALLOC') {
       this.instrucoes.push([`${instrucao} ${this.quantidadeAlocada - atributo1},${atributo1}`]);
-      this.quantidadeAlocada -= atributo1;
     }
+  }
+
+  desalocarMemoria(quantidade) {
+    this.quantidadeAlocada -= quantidade;
   }
 
   gerarInstrucao(instrucao, atributo1 = undefined) {

@@ -10,6 +10,7 @@ module.exports = class AnalisadorSintatico {
     this._geradorCodigo = geradorDeCodigo;
     this._tokenAnterior = undefined;
     this._tokenAtual = undefined;
+    this._flagdesalocacao = 1;
   }
 
   analisarPrograma() {
@@ -54,16 +55,16 @@ module.exports = class AnalisadorSintatico {
     this._tokenAtual = this._tratadorLexico.adquirirToken();
   }
 
-  _analisarAtribChprocedimento(nomeFuncao) {
+  _analisarAtribChprocedimento(nomeFuncao, quantidadeAlocada) {
     this._lertoken();
     if (this._tokenAtual.simbolo === 'satribuicao') {
-      this._analisarAtribuicao(nomeFuncao);
+      this._analisarAtribuicao(nomeFuncao, quantidadeAlocada);
     } else {
       this._analisarChamadaDeProcedimento();
     }
   }
 
-  _analisarAtribuicao(nomeFuncao) {
+  _analisarAtribuicao(nomeFuncao, quantidadeAlocada) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
     const tokenVariavel = this._tokenAnterior;
@@ -82,6 +83,10 @@ module.exports = class AnalisadorSintatico {
 
     if (simbolo.lexema === nomeFuncao) {
       this._geradorCodigo.gerarInstrucao('STR', 0);
+      if (quantidadeAlocada > 0) {
+        this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', quantidadeAlocada);
+        this._flagdesalocacao = 0;
+      }
       this._geradorCodigo.gerarInstrucao('RETURN');
       this._analisadorSemantico.confirmarRetorno(true);
     } else {
@@ -103,24 +108,31 @@ module.exports = class AnalisadorSintatico {
 
   _analisarBloco(nomeFuncao = null, rotina = false) {
     this._lertoken();
+    this._flagdesalocacao = 1;
     const quantidadeAlocada = this._analisarEtVariaveis();
-    this._analisarSubrotinas();
-    this._analisarComandos(nomeFuncao, rotina);
     if (quantidadeAlocada > 0) {
+      this._geradorCodigo.gerarAlocacaoDesalocacao('ALLOC', quantidadeAlocada);
+    }
+    this._analisarSubrotinas(quantidadeAlocada);
+    this._analisarComandos(nomeFuncao, rotina, quantidadeAlocada);
+    if (quantidadeAlocada > 0 && this._flagdesalocacao === 1) {
       this._geradorCodigo.gerarAlocacaoDesalocacao('DALLOC', quantidadeAlocada);
     }
+
+    this._geradorCodigo.desalocarMemoria(quantidadeAlocada);
+    this._flagdesalocacao = 1;
   }
 
-  _analisarComandos(nomeFuncao, rotina = false) {
+  _analisarComandos(nomeFuncao, rotina = false, quantidadeAlocada = 0) {
     if (this._tokenAtual.simbolo === 'sinicio') {
       this._analisadorSemantico.confirmarRetorno(false);
       this._lertoken();
-      this._analisarComandoSimples(nomeFuncao);
+      this._analisarComandoSimples(nomeFuncao, quantidadeAlocada);
       while (this._tokenAtual.simbolo !== 'sfim') {
         if (this._tokenAtual.simbolo === 'spontovirgula') {
           this._lertoken();
           if (this._tokenAtual.simbolo !== 'sfim') {
-            this._analisarComandoSimples(nomeFuncao);
+            this._analisarComandoSimples(nomeFuncao, quantidadeAlocada);
           }
         } else {
           throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
@@ -134,20 +146,20 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarComandoSimples(nomeFuncao) {
+  _analisarComandoSimples(nomeFuncao, quantidadeAlocada) {
     if (this._tokenAtual.simbolo === 'sidentificador') {
       this._analisadorSemantico.confirmarRetorno(false);
       if (this._analisadorSemantico.pesquisaDeclprocTabela(this._tokenAtual.lexema) || this._analisadorSemantico.pesquisaDeclvarTabela(this._tokenAtual.lexema) || (this._tokenAtual.lexema === nomeFuncao)) {
-        this._analisarAtribChprocedimento(nomeFuncao);
+        this._analisarAtribChprocedimento(nomeFuncao, quantidadeAlocada);
       } else {
         throw new Erro(`Procedimento ou variavel "${this._tokenAtual.lexema}" nao declarada:${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
       }
     } else if (this._tokenAtual.simbolo === 'sse') {
       this._analisadorSemantico.confirmarRetorno(false);
-      this._analisarSe(nomeFuncao);
+      this._analisarSe(nomeFuncao, quantidadeAlocada);
     } else if (this._tokenAtual.simbolo === 'senquanto') {
       this._analisadorSemantico.confirmarRetorno(false);
-      this._analisarEnquanto(nomeFuncao);
+      this._analisarEnquanto(nomeFuncao, quantidadeAlocada);
     } else if (this._tokenAtual.simbolo === 'sleia') {
       this._analisadorSemantico.confirmarRetorno(false);
       this._analisarLeia();
@@ -155,11 +167,11 @@ module.exports = class AnalisadorSintatico {
       this._analisadorSemantico.confirmarRetorno(false);
       this._analisarEscreva();
     } else {
-      this._analisarComandos(nomeFuncao);
+      this._analisarComandos(nomeFuncao, false, quantidadeAlocada);
     }
   }
 
-  _analisarDeclaracaoFuncao() {
+  _analisarDeclaracaoFuncao(quantidadeAlocada) {
     this._lertoken();
     this._analisadorSemantico.incrementaNivel();
     if (this._tokenAtual.simbolo === 'sidentificador') {
@@ -174,7 +186,7 @@ module.exports = class AnalisadorSintatico {
             this._analisadorSemantico.colocaTipoFuncao(this._tokenAtual.simbolo);
             this._lertoken();
             if (this._tokenAtual.simbolo === 'spontovirgula') {
-              this._analisarBloco(nomeFuncao, true);
+              this._analisarBloco(nomeFuncao, true, quantidadeAlocada);
               if (!this._analisadorSemantico._testeRetornoFunc) {
                 throw new Erro(`Não existe retorno alcancavel para a funcao: "${nomeFuncao}": ${this._tokenAtual.linha} ${this._tokenAtual.coluna}"`, this._tokenAtual.linha);
               }
@@ -204,6 +216,7 @@ module.exports = class AnalisadorSintatico {
         this._lertoken();
         if (this._tokenAtual.simbolo === 'spontovirgula') {
           this._analisarBloco(null, true);
+          this._geradorCodigo.gerarInstrucao('RETURN');
         } else {
           throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
         }
@@ -216,7 +229,7 @@ module.exports = class AnalisadorSintatico {
     this._analisadorSemantico.desempilhaNivel();
   }
 
-  _analisarEnquanto(nomeFuncao = null) {
+  _analisarEnquanto(nomeFuncao = null, quantidadeAlocada) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
 
@@ -230,7 +243,7 @@ module.exports = class AnalisadorSintatico {
       this._geradorCodigo.gerarJump('JMPF', labelAux1);
       if (this._tokenAtual.simbolo === 'sfaca') {
         this._lertoken();
-        this._analisarComandoSimples(nomeFuncao);
+        this._analisarComandoSimples(nomeFuncao, quantidadeAlocada);
         this._analisadorSemantico.confirmarRetorno(false);
       } else {
         throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se "faca":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
@@ -281,7 +294,7 @@ module.exports = class AnalisadorSintatico {
       this._lertoken();
       if (this._tokenAtual.simbolo === 'sidentificador') {
         while (this._tokenAtual.simbolo === 'sidentificador') {
-          quantidadeAlocada += this._analisarVariaveis();
+          quantidadeAlocada += this._analisarVariaveis(quantidadeAlocada);
           if (this._tokenAtual.simbolo === 'spontovirgula') {
             this._lertoken();
           } else {
@@ -382,7 +395,7 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarSe(nomeFuncao = null) {
+  _analisarSe(nomeFuncao = null, quantidadeAlocada) {
     const linhaInicial = this._tokenAtual.linha;
     const colunaInicial = this._tokenAtual.coluna;
 
@@ -393,14 +406,14 @@ module.exports = class AnalisadorSintatico {
         const labelAux = this._geradorCodigo.gerarLabel('SESENAO');
         this._geradorCodigo.gerarJump('JMPF', labelAux);
         this._lertoken();
-        this._analisarComandoSimples(nomeFuncao);
+        this._analisarComandoSimples(nomeFuncao, quantidadeAlocada);
         const labelAux1 = this._geradorCodigo.gerarLabel('SESENAO');
         if (this._tokenAtual.simbolo === 'ssenao') {
           const retornoAux = this._analisadorSemantico._testeRetornoFunc;
           this._geradorCodigo.gerarJump('JMP', labelAux1);
           this._geradorCodigo.inserirLabel(labelAux);
           this._lertoken();
-          this._analisarComandoSimples(nomeFuncao);
+          this._analisarComandoSimples(nomeFuncao, quantidadeAlocada);
           if (!(nomeFuncao && retornoAux) && this._analisadorSemantico._testeRetornoFunc) {
             this._analisadorSemantico.confirmarRetorno(false);
           }
@@ -419,8 +432,8 @@ module.exports = class AnalisadorSintatico {
     }
   }
 
-  _analisarVariaveis() {
-    let cont = 0;
+  _analisarVariaveis(contadorVariavel) {
+    let cont = contadorVariavel;
     do {
       if (this._tokenAtual.simbolo === 'sidentificador') {
         if (!this._analisadorSemantico.pesquisaDuplicVarTabela(this._tokenAtual.lexema)) {
@@ -446,19 +459,14 @@ module.exports = class AnalisadorSintatico {
     } while (this._tokenAtual.simbolo !== 'sdoispontos');
     this._lertoken();
     this._analisarTipo();
-    this._geradorCodigo.gerarAlocacaoDesalocacao('ALLOC', cont);
     return cont;
   }
 
-  _analisarSubrotinas() {
+  _analisarSubrotinas(quantidadeAlocada = 0) {
     let labelAux;
     let flag = 0;
-    let flagProcedimento = 0;
 
     if (this._tokenAtual.simbolo === 'sprocedimento' || this._tokenAtual.simbolo === 'sfuncao') {
-      if (this._tokenAtual.simbolo === 'sprocedimento') {
-        flagProcedimento = 1;
-      }
       labelAux = this._geradorCodigo.gerarLabel('SUBROTINA');
       this._geradorCodigo.gerarJump('JMP', labelAux);
       flag = 1;
@@ -466,15 +474,12 @@ module.exports = class AnalisadorSintatico {
 
     while (this._tokenAtual.simbolo === 'sprocedimento' || this._tokenAtual.simbolo === 'sfuncao') {
       if (this._tokenAtual.simbolo === 'sprocedimento') {
-        this._analisarDeclaracaoProcedimento();
+        this._analisarDeclaracaoProcedimento(quantidadeAlocada);
       } else {
-        this._analisarDeclaracaoFuncao();
+        this._analisarDeclaracaoFuncao(quantidadeAlocada);
       }
       if (this._tokenAtual.simbolo === 'spontovirgula') {
         this._lertoken();
-        if (flagProcedimento === 1) {
-          this._geradorCodigo.gerarInstrucao('RETURN');
-        }
       } else {
         throw new Erro(`Token "${this._tokenAtual.lexema}" inesperado. Espera-se ";":${this._tokenAtual.linha}:${this._tokenAtual.coluna} `, this._tokenAtual.linha);
       }
